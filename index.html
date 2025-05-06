@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ChanceLight Attendance Dashboard</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary-color: #1cd6c9;
+      --primary-light: rgba(28, 214, 201, 0.1);
+      --secondary-color: #ff9f43;
+      --danger-color: #ff5c75;
+      --info-color: #5a8dee;
+      --success-color: #39da8a;
+      --sidebar-bg: #141414;
+      --main-bg: #1e1e1e;
+      --card-bg: #252525;
+      --card-hover: #2c2c2c;
+      --text-primary: #ffffff;
+      --text-secondary: #b3b3b3;
+      --border-radius: 12px;
+      --border-radius-sm: 8px;
+      --on-time: #1cd6c9;
+      --late: #ffad0f;
+      --absent: #ff4d4d;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--main-bg);
+      color: var(--text-primary);
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .app-container {
+      display: flex;
+      height: 100vh;
+    }
+
+    /* Sidebar Styles */
+    .sidebar {
+      width: 260px;
+      height: 100%;
+      background-color: var(--sidebar-bg);
+      display: flex;
+      flex-direction: column;
+      padding: 20px 0;
+      overflow-y: auto;
+      scrollbar-width: thin; /* For Firefox */
+      scrollbar-color: rgba(255, 255, 255, 0.2) transparent; /* For Firefox */
+    }
+
+    .sidebar::-webkit-scrollbar {
+      width: 6px; /* For WebKit browsers */
+    }
+
+    .sidebar::-webkit-scrollbar-thumb {
+      background-color: rgba(255, 255, 255, 0.2);
+      border-radius: 3px;
+    }
+
+    .sidebar::-webkit-scrollbar-thumb:hover {
+      background-color: rgba(255, 255, 255, 0.4);
+    }
+
+    .sidebar::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .logo-container {
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      margin-bottom: 30px;
+    }
+
+    .logo {
+      width: 36px;
+      height: 36px;
+      background-color: var(--primary-color);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 12px;
+    }
+
+    .logo-icon {
+      color: black;
+      font-weight: bold;
+      font-size: 18px;
+    }
+
+    .menu-section {
+      margin-bottom: 30px;
+    }
+
+    .menu-title {
+      font-size: 12px;
+      color: var(--text-secondary);
+      padding: 0 20px;
+      margin-bottom: 10px;
+      font-weight: 600;
+    }
+
+    .menu-list {
+      list-style-type: none;
+    }
+
+    .menu-item {
+      display: flex;
+      align-items: center;
+      padding: 12px 20px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      color: var(--text-secondary);
+      position: relative;
+    }
+
+    .menu-item.active {
+      background-color: var(--primary-light);
+      color: var(--text-primary);
+      border-left: 3px solid var(--primary-color);
+    }
+
+    .menu-item:hover:not(.active) {
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+
+    .menu-icon {
+      margin-right: 12px;
+      font-size: 18px;
+    }
+
+    .menu-arrow {
+      margin-left: auto;
+      font-size: 18px;
+    }
+
+    .notification-badge {
+      margin-left: auto;
+      background-color: rgba(255, 77, 77, 0.9);
+      color: white;
+      min-width: 20px;
+      height: 20px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      padding: 0 6px;
+    }
+
+    .sidebar-footer {
+      margin-top: auto;
+      padding: 0 20px;
+    }
+
+    .premium-card {
+      background-color: var(--card-bg);
+      border-radius: var(--border-radius);
+      padding: 20px;
+      position: relative;
+    }
+
+    .premium-badge {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background-color: rgba(28, 214, 201, 0.2);
+      color: var(--primary-color);
+      padding: 4px 10px;
+      border-radius: 50px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .premium-card h4 {
+      margin-bottom: 16px;
+      font-weight: 700;
+    }
+
+    .premium-card p {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
+
+    .btn-upgrade {
+      width: 100%;
+      padding: 10px;
+      background-color: var(--card-bg);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 6px;
+      color: var(--text-primary);
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .btn-upgrade:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    /* Main Content Styles */
+    .main-content {
+      flex: 1;
+      padding: 24px;
+      overflow-y: auto;
+    }
+
+    .content-wrapper {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    /* Welcome Section */
+    .welcome-section {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .greeting {
+      display: flex;
+      align-items: center;
+    }
+
+    .user-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background-color: var(--primary-light);
+      color: var(--primary-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      margin-right: 16px;
+      font-size: 18px;
+    }
+
+    .greeting-text h1 {
+      font-size: 24px;
+      margin-bottom: 4px;
+    }
+
+    .greeting-text p {
+      color: var(--text-secondary);
+      font-size: 14px;
+    }
+
+    .date-time {
+      text-align: right;
+    }
+
+    .current-date {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-bottom: 4px;
+    }
+
+    .current-time {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--primary-color);
+    }
+
+    /* Quick Actions */
+    .quick-actions {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .action-card {
+      background-color: var(--card-bg);
+      border-radius: var(--border-radius);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      transition: all 0.3s;
+      cursor: pointer;
+    }
+
+    .action-card:hover {
+      transform: translateY(-5px);
+      background-color: var(--card-hover);
+    }
+
+    .action-card.staff {
+      border-left: 4px solid var(--primary-color);
+    }
+
+    .action-card.student {
+      border-left: 4px solid var(--secondary-color);
+    }
+
+    .action-icon {
+      font-size: 24px;
+      margin-bottom: 12px;
+    }
+
+    .action-card.staff .action-icon {
+      color: var(--primary-color);
+    }
+
+    .action-card.student .action-icon {
+      color: var(--secondary-color);
+    }
+
+    .action-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .action-description {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-bottom: 16px;
+    }
+
+    .action-button {
+      padding: 8px 16px;
+      background-color: rgba(255, 255, 255, 0.05);
+      border: none;
+      border-radius: var(--border-radius-sm);
+      color: var(--text-primary);
+      font-weight: 500;
+      cursor: pointer;
+      align-self: flex-start;
+      transition: all 0.2s;
+    }
+
+    .action-card.staff .action-button:hover {
+      background-color: var(--primary-color);
+      color: black;
+    }
+
+    .action-card.student .action-button:hover {
+      background-color: var(--secondary-color);
+      color: black;
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .stat-card {
+      background-color: var(--card-bg);
+      border-radius: var(--border-radius);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      transition: all 0.3s;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-5px);
+      background-color: var(--card-hover);
+    }
+
+    .stat-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .stat-title {
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    .stat-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+
+    .primary-bg {
+      background-color: var(--primary-light);
+      color: var(--primary-color);
+    }
+
+    .secondary-bg {
+      background-color: rgba(255, 159, 67, 0.1);
+      color: var(--secondary-color);
+    }
+
+    .danger-bg {
+      background-color: rgba(255, 92, 117, 0.1);
+      color: var(--danger-color);
+    }
+
+    .info-bg {
+      background-color: rgba(90, 141, 238, 0.1);
+      color: var(--info-color);
+    }
+
+    .stat-value {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .stat-subtext {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .section-title h2 {
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .section-title-left {
+      padding-left: 12px;
+      border-left: 4px solid var(--primary-color);
+    }
+
+    /* Charts Grid */
+    .charts-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+
+    .chart-card {
+      background-color: var(--card-bg);
+      border-radius: var(--border-radius);
+      padding: 20px;
+    }
+
+    .chart-container {
+      margin-top: 16px;
+      height: 250px;
+      position: relative;
+    }
+
+    .chart-placeholder {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-secondary);
+    }
+
+    .chart-placeholder-icon {
+      font-size: 32px;
+      margin-bottom: 16px;
+      color: var(--primary-color);
+    }
+
+    .chart-controls {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 16px;
+    }
+
+    .chart-legend {
+      display: flex;
+      gap: 16px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .legend-color {
+      width: 12px;
+      height: 12px;
+      border-radius: 3px;
+    }
+
+    .legend-color.staff {
+      background-color: var(--primary-color);
+    }
+
+    .legend-color.student {
+      background-color: var(--secondary-color);
+    }
+
+    /* Critical Info Card */
+    .critical-info {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .info-items {
+      flex: 1;
+      margin-top: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .info-item {
+      background-color: rgba(255, 255, 255, 0.05);
+      border-radius: var(--border-radius-sm);
+      padding: 16px;
+      position: relative;
+    }
+
+    .info-item.urgent {
+      border-left: 4px solid var(--danger-color);
+    }
+
+    .info-item.warning {
+      border-left: 4px solid var(--secondary-color);
+    }
+
+    .info-item.info {
+      border-left: 4px solid var(--info-color);
+    }
+
+    .info-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .info-icon-container {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .info-icon-container.urgent {
+      background-color: rgba(255, 92, 117, 0.1);
+      color: var(--danger-color);
+    }
+
+    .info-icon-container.warning {
+      background-color: rgba(255, 159, 67, 0.1);
+      color: var(--secondary-color);
+    }
+
+    .info-icon-container.info {
+      background-color: rgba(90, 141, 238, 0.1);
+      color: var(--info-color);
+    }
+
+    .info-title {
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .info-message {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    .info-timestamp {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 8px;
+      text-align: right;
+    }
+
+    /* Attendance History */
+    .history-card {
+      background-color: var(--card-bg);
+      border-radius: var(--border-radius);
+      padding: 20px;
+      margin-bottom: 24px;
+    }
+
+    .history-tabs {
+      display: flex;
+      margin-bottom: 16px;
+    }
+
+    .history-tab {
+      padding: 8px 16px;
+      cursor: pointer;
+      color: var(--text-secondary);
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+    }
+
+    .history-tab.active {
+      color: var(--primary-color);
+      border-bottom-color: var(--primary-color);
+    }
+
+    .history-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .history-table th {
+      text-align: left;
+      padding: 16px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .history-table td {
+      padding: 16px;
+      font-size: 14px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .member-cell {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .member-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .member-avatar.staff {
+      background-color: var(--primary-light);
+      color: var(--primary-color);
+    }
+
+    .member-avatar.student {
+      background-color: rgba(255, 159, 67, 0.1);
+      color: var(--secondary-color);
+    }
+
+    .member-name {
+      font-weight: 500;
+    }
+
+    .member-role {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .status-badge {
+      padding: 4px 10px;
+      border-radius: 50px;
+      font-size: 12px;
+      font-weight: 500;
+      display: inline-block;
+    }
+
+    .status-badge.on-time {
+      background-color: rgba(28, 214, 201, 0.1);
+      color: var(--on-time);
+    }
+
+    .status-badge.late {
+      background-color: rgba(255, 173, 15, 0.1);
+      color: var(--late);
+    }
+
+    .status-badge.absent {
+      background-color: rgba(255, 77, 77, 0.1);
+      color: var(--absent);
+    }
+
+    .pagination {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 20px;
+    }
+
+    .pagination-button {
+      width: 36px;
+      height: 36px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: var(--card-bg);
+      color: var(--text-primary);
+      border: none;
+      cursor: pointer;
+    }
+
+    .pagination-button.active {
+      background-color: var(--primary-color);
+      color: black;
+    }
+
+    /* Responsive */
+    @media (max-width: 1200px) {
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      
+      .charts-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .welcome-section {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+      }
+      
+      .quick-actions {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="logo-container">
+        <div class="logo">
+          <div class="logo-icon">C</div>
+        </div>
+        <h2>ChanceLight</h2>
+      </div>
+      
+      <div class="menu-section">
+        <h3 class="menu-title">MAIN MENU</h3>
+        <ul class="menu-list">
+          <li class="menu-item active">
+            <span class="menu-icon">📊</span>
+            <a href="index.html" style="text-decoration: none; color: #b3b3b3;">Dashboard</a>
+          </li>
+          <li class="menu-item">
+            <span class="menu-icon">📋</span>
+            <a href="attendance-review-page.html" style="text-decoration: none; color: #b3b3b3;">Attendance</a>
+          </li>
+          <li class="menu-item">
+            <span class="menu-icon">👥</span>
+            <a href="roster-management-page.html" style="text-decoration: none; color: #b3b3b3;">Roster Management</a>
+          </li>
+          <li class="menu-item">
+            <span class="menu-icon">📝</span>
+            <a href="grades-management-page.html" style="text-decoration: none; color: #b3b3b3;">Grades</a>
+          </li>
+          <li class="menu-item">
+            <span class="menu-icon">📅</span>
+            <a href="course-schedule-page.html" style="text-decoration: none; color: #b3b3b3;">Schedule</a>
+          </li>
+          <li class="menu-item">
+            <span class="menu-icon">💬</span>
+            <a href="parent-communication-page.html" style="text-decoration: none; color: #b3b3b3;">Parent Communication</a>
+          </li>
+          <li class="menu-item">
+            <span class="menu-icon">📈</span>
+            <a href="behavior-tracking-page.html" style="text-decoration: none; color: #b3b3b3;">Behavior Tracking</a>
+          </li>
+          <li class="menu-item">
+            <span class="menu-icon">🔔</span>
+            <a href="notification-page.html" style="text-decoration: none; color: #b3b3b3;">Notifications</a>
+            <span class="notification-badge">8</span>
+          </li>
+        </ul>
+      </div>
+      
+      <div class="menu-section">
+        <h3 class="menu-title">SETTINGS</h3>
+        <ul class="menu-list">
+          <li class="menu-item">
+            <span class="menu-icon">⚙️</span>
+            <span>Settings</span>
+            <span class="menu-arrow">›</span>
+          </li>
+          <li class="menu-item">
+            <span class="menu-icon">❓</span>
+            <span>Help Center</span>
+          </li>
+        </ul>
+      </div>
+      
+      <div class="sidebar-footer">
+        <div class="premium-card">
+          <h4>ChanceLight Attendance</h4>
+          <div class="premium-badge">INFO</div>
+          <p>Track attendance for both students and staff with ease.</p>
+          <button class="btn-upgrade">Learn More</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <div class="content-wrapper">
+        <!-- Welcome Section with Current Time -->
+        <div class="welcome-section">
+          <div class="greeting">
+            <div class="user-avatar">BJ</div>
+            <div class="greeting-text">
+              <h1>Welcome back, Brian Johnson!</h1>
+              <p>Here's your attendance overview for today</p>
+            </div>
+          </div>
+          
+          <div class="date-time">
+            <div class="current-date">Monday, May 5, 2025</div>
+            <div class="current-time">08:45 AM</div>
+          </div>
+        </div>
+        
+        <!-- Quick Attendance Actions -->
+        <div class="quick-actions">
+          <div class="action-card staff">
+            <div class="action-icon">👩‍🏫</div>
+            <div class="action-title">Record Staff Attendance</div>
+            <div class="action-description">Take attendance for teachers and staff members</div>
+            <a href="#" style="text-decoration: none; color: inherit;">
+              <button class="action-button">Check In/Out</button>
+            </a>
+          </div>
+          
+          <div class="action-card student">
+            <div class="action-icon">👨‍🎓</div>
+            <div class="action-title">Record Student Attendance</div>
+            <div class="action-description">Take attendance for students by class or individually</div>
+            <a href="attendance-taking-page.html" style="text-decoration: none; color: inherit;">
+              <button class="action-button">Check In/Out</button>
+            </a>
+          </div>
+        </div>
+        
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-header">
+              <div class="stat-title">Staff Attendance</div>
+              <div class="stat-icon primary-bg">👥</div>
+            </div>
+            <div class="stat-value">85%</div>
+            <div class="stat-subtext">12/15 staff present today</div>
+          </div>
+          
+          <div class="stat-card">
+            <div class="stat-header">
+              <div class="stat-title">Student Attendance</div>
+              <div class="stat-icon secondary-bg">👨‍🎓</div>
+            </div>
+            <div class="stat-value">92%</div>
+            <div class="stat-subtext">115/125 students present</div>
+          </div>
+          
+          <div class="stat-card">
+            <div class="stat-header">
+              <div class="stat-title">Late Arrivals</div>
+              <div class="stat-icon danger-bg">⏱️</div>
+            </div>
+            <div class="stat-value">8</div>
+            <div class="stat-subtext">2 staff, 6 students</div>
+          </div>
+          
+          <div class="stat-card">
+            <div class="stat-header">
+              <div class="stat-title">Absences</div>
+              <div class="stat-icon info-bg">📝</div>
+            </div>
+            <div class="stat-value">13</div>
+            <div class="stat-subtext">3 staff, 10 students</div>
+          </div>
+        </div>
+        
+        <!-- Charts and Critical Info -->
+        <div class="charts-grid">
+          <!-- Attendance Trends Chart -->
+          <div class="chart-card">
+            <div class="section-title">
+              <h2 class="section-title-left">Weekly Attendance Trends</h2>
+            </div>
+            
+            <div class="chart-container">
+              <div class="chart-placeholder">
+                <div class="chart-placeholder-icon">📊</div>
+                <div>Interactive attendance chart showing weekly trends</div>
+              </div>
+            </div>
+            
+            <div class="chart-controls">
+              <div class="chart-legend">
+                <div class="legend-item">
+                  <div class="legend-color staff"></div>
+                  <span>Staff</span>
+                </div>
+                <div class="legend-item">
+                  <div class="legend-color student"></div>
+                  <span>Students</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Critical Information Card -->
+          <div class="chart-card">
+            <div class="critical-info">
+              <div class="section-title">
+                <h2 class="section-title-left">Critical Information</h2>
+              </div>
+              
+              <div class="info-items">
+                <div class="info-item urgent">
+                  <div class="info-header">
+                    <div class="info-icon-container urgent">!</div>
+                    <div class="info-title">Staff Shortage Alert</div>
+                  </div>
+                  <div class="info-message">
+                    Special Education department is currently understaffed with 3 teachers absent.
+                  </div>
+                  <div class="info-timestamp">Today, 7:45 AM</div>
+                </div>
+                
+                <div class="info-item warning">
+                  <div class="info-header">
+                    <div class="info-icon-container warning">⚠️</div>
+                    <div class="info-title">Increased Tardiness</div>
+                  </div>
+                  <div class="info-message">
+                    10th grade has 15% increase in tardiness this week. Follow-up required.
+                  </div>
+                  <div class="info-timestamp">Yesterday, 4:30 PM</div>
+                </div>
+                
+                <div class="info-item info">
+                  <div class="info-header">
+                    <div class="info-icon-container info">ℹ️</div>
+                    <div class="info-title">System Maintenance</div>
+                  </div>
+                  <div class="info-message">
+                    Scheduled update on May 10. System will be offline from 11 PM to 2 AM.
+                  </div>
+                  <div class="info-timestamp">May 3, 2025</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Recent Attendance History -->
+        <div class="history-card">
+          <div class="section-title">
+            <h2 class="section-title-left">Recent Attendance History</h2>
+          </div>
+          
+          <div class="history-tabs">
+            <div class="history-tab active">All</div>
+            <div class="history-tab">Staff</div>
+            <div class="history-tab">Students</div>
+          </div>
+          
+          <table class="history-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Date</th>
+                <th>Check In</th>
+                <th>Check Out</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <div class="member-cell">
+                    <div class="member-avatar staff">NK</div>
+                    <div>
+                      <div class="member-name">Natashia Khaleira</div>
+                      <div class="member-role">Special Education</div>
+                    </div>
+                  </div>
+                </td>
+                <td>Staff</td>
+                <td>May 5, 2025</td>
+                <td>08:30 AM</td>
+                <td>-</td>
+                <td><span class="status-badge on-time">On Time</span></td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="member-cell">
+                    <div class="member-avatar student">MT</div>
+                    <div>
+                      <div class="member-name">Michael Thompson</div>
+                      <div class="member-role">10th Grade</div>
+                    </div>
+                  </div>
+                </td>
+                <td>Student</td>
+                <td>May 5, 2025</td>
+                <td>08:42 AM</td>
+                <td>-</td>
+                <td><span class="status-badge late">Late</span></td>
+              </tr>
+              <tr>
+                <td>
+                  

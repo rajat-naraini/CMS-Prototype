@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ChanceLight Attendance Review</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary-color: #1cd6c9;
+      --primary-light: rgba(28, 214, 201, 0.1);
+      --secondary-color: #ff9f43;
+      --danger-color: #ff5c75;
+      --info-color: #5a8dee;
+      --success-color: #39da8a;
+      --sidebar-bg: #141414;
+      --main-bg: #1e1e1e;
+      --card-bg: #252525;
+      --card-hover: #2c2c2c;
+      --text-primary: #ffffff;
+      --text-secondary: #b3b3b3;
+      --border-radius: 12px;
+      --border-radius-sm: 8px;
+      --on-time: #1cd6c9;
+      --present: #39da8a;
+      --absent: #ff4d4d;
+      --late: #ffad0f;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--main-bg);
+      color: var(--text-primary);
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .app-container {
+      display: flex;
+      height: 100vh;
+    }
+
+    /* Sidebar Styles */
+    .sidebar {
+      width: 260px;
+      height: 100%;
+      background-color: var(--sidebar-bg);
+      display: flex;
+      flex-direction: column;
+      padding: 20px 0;
+      overflow-y: auto;
+    }
+
+    .logo-container {
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      margin-bottom: 30px;
+    }
+
+    .logo {
+      width: 36px;
+      height: 36px;
+      background-color: var(--primary-color);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 12px;
+    }
+
+    .logo-icon {
+      color: black;
+      font-weight: bold;
+      font-size: 18px;
+    }
+
+    .menu-section {
+      margin-bottom: 30px;
+    }
+
+    .menu-title {
+      font-size: 12px;
+      color: var(--text-secondary);
+      padding: 0 20px;
+      margin-bottom: 10px;
+      font-weight: 600;
+    }
+
+    .menu-list {
+      list-style-type: none;
+    }
+
+    .menu-item {
+      display: flex;
+      align-items: center;
+      padding: 12px 20px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      color: var(--text-secondary);
+      position: relative;
+    }
+
+    .menu-item.active {
+      background-color: var(--primary-light);
+      color: var(--text-primary);
+      border-left: 3px solid var(--primary-color);
+    }
+
+    .menu-item:hover:not(.active) {
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+
+    .menu-icon {
+      margin-right: 12px;
+      font-size: 18px;
+    }
+
+    .menu-arrow {
+      margin-left: auto;
+      font-size: 18px;
+    }
+
+    .notification-badge {
+      margin-left: auto;
+      background-color: rgba(255, 77, 77, 0.9);
+      color: white;
+      min-width: 20px;
+      height: 20px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      padding: 0 6px;
+    }
+
+    /* Main Content Styles */
+    .main-content {
+      flex: 1;
+      padding: 24px;
+      overflow-y: auto;
+    }
+
+    .content-wrapper {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .page-title {
+      font-size: 24px;
+      font-weight: 700;
+    }
+
+    .page-subtitle {
+      color: var(--text-secondary);
+      font-size: 14px;
+      margin-top: 4px;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 12px;
+    }
+
+    .header-btn {
+      padding: 8px 16px;
+      border-radius: 6px;
+      border: none;
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background-color: var(--primary-color);
+      color: black;
+    }
+
+    .btn-primary:hover {
+      background-color: #19c0b5;
+    }
+
+    .btn-outline {
+      background-color: transparent;
+      border: 1px solid var(--primary-color);
+      color: var(--primary-color);
+    }
+
+    .btn-outline:hover {
+      background-color: var(--primary-light);
+    }
+
+    /* Filters Section */
+    .filters-section {
+      background-color: var(--card-bg);
+      border-radius: var(--border-radius);
+      padding: 20px;
+      margin-bottom: 24px;
+    }
+
+    .filters-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+
+    .filters-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .filter-label {
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    .filter-control {
+      padding: 10px;
+      background-color: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: var(--border-radius-sm);
+      color: var(--text-primary);
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+    }
+
+    .filter-control:focus {
+      outline: none;
+      border-color: var(--primary-color);
+    }
+
+    .date-range {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .date-input {
+      flex: 1;
+    }
+
+    .filters-actions {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 20px;
+      gap: 12px;
+    }
+
+    /* Stats Cards */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .stat-card {
+      background-color: var(--card-bg);
+      border-radius: var(--border-radius);
+      padding: 20px;
+      transition: transform 0.2s;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-5px);
+      background-color: var(--card-hover);
+    }
+
+    .stat-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .stat-title {
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    .stat-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+
+    .icon-present {
+      background-color: rgba(57, 218, 138, 0.1);
+      color: var(--present);
+    }
+
+    .icon-absent {
+      background-color: rgba(255, 77, 77, 0.1);
+      color: var(--absent);
+    }
+
+    .icon-late {
+      background-color: rgba(255, 173, 15, 0.1);
+      color: var(--late);
+    }
+
+    .icon-perfect {
+      background-color: rgba(90, 141, 238, 0.1);
+      color: var(--info-color);
+    }
+
+    .stat-value {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .stat-subtext {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    /* Tabs Container */
+    .tabs-container {
+      margin-bottom: 24px;
+    }
+
+    .tabs-header {
+      display: flex;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      margin-bottom: 24px;
+    }
+
+    .tab {
+      padding: 12px 24px;
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.2s;
+      border-bottom: 2px solid transparent;
+    }
+
+    .tab.active {
+      color: var(--primary-color);
+      border-bottom-color: var(--primary-color);
+    }
+
+    .tab:hover:not(.active) {
+      color: var(--text-primary);
+    }
+
+    /* Attendance Tables */
+    .table-card {
+      background-color: var(--card-bg);
+      border-radius: var(--border-radius);
+      padding: 20px;
+      margin-bottom: 24px;
+    }
+
+    .table-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .table-title {
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .table-actions {
+      display: flex;
+      gap: 12px;
+    }
+
+    .action-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--border-radius-sm);
+      background-color: rgba(255, 255, 255, 0.05);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .action-icon:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .attendance-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .attendance-table th {
+      text-align: left;
+      padding: 12px 16px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .attendance-table td {
+      padding: 16px;
+      font-size: 14px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .attendance-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .attendance-table tr:hover td {
+      background-color: rgba(255, 255, 255, 0.02);
+    }
+
+    .member-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .member-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+    }
+
+    .staff-avatar {
+      background-color: var(--primary-light);
+      color: var(--primary-color);
+    }
+
+    .student-avatar {
+      background-color: rgba(255, 159, 67, 0.1);
+      color: var(--secondary-color);
+    }
+
+    .member-name {
+      font-weight: 500;
+      margin-bottom: 2px;
+    }
+
+    .member-role {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .status-badge {
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 500;
+      display: inline-block;
+    }
+
+    .status-present {
+      background-color: rgba(57, 218, 138, 0.1);
+      color: var(--present);
+    }
+
+    .status-absent {
+      background-color: rgba(255, 77, 77, 0.1);
+      color: var(--absent);
+    }
+
+    .status-late {
+      background-color: rgba(255, 173, 15, 0.1);
+      color: var(--late);
+    }
+
+    .pagination {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 20px;
+    }
+
+    .page-info {
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    .page-buttons {
+      display: flex;
+      gap: 8px;
+    }
+
+    .page-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--border-radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: rgba(255, 255, 255, 0.05);
+      color: var(--text-primary);
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+    }
+
+    .page-btn.active {
+      background-color: var(--primary-color);
+      color: black;
+    }
+
+    .page-btn:hover:not(.active) {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    /* Responsive Styles */
+    @media (max-width: 1200px) {
+      .filters-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .filters-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+      }
+      
+      .header-actions {
+        width: 100%;
+        justify-content: space-between;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="logo-container">
+        <div class="logo">
+          <div class="logo-icon">C</div>
+        </div>
+        <h2>ChanceLight</h2>
+      </div>
+      
+      <div class="menu-section">
+        <h3 class="menu-title">MAIN MENU</h3>
+        <ul class="menu-list">
+          <li class="menu-item">
+            <span class="menu-icon">📊</span>
+            <a href="index.html" style="text-decoration: none; color: #b3b3b3;">Dashboard</a>
+          </li>
+          <li class="menu-item active">
+            <span class="menu-icon">📋</span>
+            <a href="attendance-review-page.html" style="text-decoration: none; color: #b3b3b3;">Attendance</a>
+          </li>
+          <li class="menu-item">
+            <span class="menu-icon">👥</span>
+            <a href="roster-management-page.html" style="text-decoration: none; color: #b3b3b3;">Roster Management</a>
+          </li>
+          <li class="menu-item">
+            <span class="menu-icon">📝</span>
+            <a href="grades-management-page.html" style="text-decoration: none; color: #b3b3b3;">Grades</a>
+          </li>
+          <li class="menu-item">
+            <span class="menu-icon">📅</span>
+            <a href="course-schedule-page.html" style="text-decoration: none; color: #b3b3b3;">Schedule</a>
+          </li>
+          <li class="menu-item">
+            <span class="menu-icon">💬</span>
+            <a href="parent-communication-page.html" style="text-decoration: none; color: #b3b3b3;">Parent Communication</a>
+          </li>
+          <li class="menu-item">
+            <span class="menu-icon">📈</span>
+            <a href="behavior-tracking-page.html" style="text-decoration: none; color: #b3b3b3;">Behavior Tracking</a>
+          </li>
+          <li class="menu-item">
+            <span class="menu-icon">🔔</span>
+            <a href="notification-page.html" style="text-decoration: none; color: #b3b3b3;">Notifications</a>
+            <span class="notification-badge">8</span>
+          </li>
+        </ul>
+      </div>
+      
+      <div class="menu-section">
+        <h3 class="menu-title">SETTINGS</h3>
+        <ul class="menu-list">
+          <li class="menu-item">
+            <span class="menu-icon">⚙️</span>
+            <span>Settings</span>
+            <span class="menu-arrow">›</span>
+          </li>
+          <li class="menu-item">
+            <span class="menu-icon">❓</span>
+            <span>Help Center</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <div class="content-wrapper">
+        <!-- Page Header -->
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">Attendance Review</h1>
+            <p class="page-subtitle">Review and manage attendance records for staff and students</p>
+          </div>
+          
+          <div class="header-actions">
+            <button class="header-btn btn-outline">
+              <span>📋</span>
+                <a href="attendance-taking-page.html" style="text-decoration: none; color: inherit;">Take Attendance</a>
+            </button>
+            <button class="header-btn btn-outline">
+              <span>📊</span>
+              <span>Generate Report</span>
+            </button>
+            <button class="header-btn btn-primary">
+              <span>📤</span>
+              <span>Export Data</span>
+            </button>
+          </div>
+        </div>
+        
+        <!-- Filters Section -->
+        <div class="filters-section">
+          <h2 class="filters-title">Filters</h2>
+          
+          <div class="filters-grid">
+            <div class="filter-group">
+              <label class="filter-label">Member Type</label>
+              <select class="filter-control">
+                <option>All Members</option>
+                <option>Staff Only</option>
+                <option>Students Only</option>
+              </select>
+            </div>
+            
+            <div class="filter-group">
+              <label class="filter-label">Department/Grade</label>
+              <select class="filter-control">
+                <option>All</option>
+                <option>Special Education</option>
+                <option>Math Department</option>
+                <option>Science Department</option>
+                <option>10th Grade</option>
+                <option>11th Grade</option>
+              </select>
+            </div>
+            
+            <div class="filter-group">
+              <label class="filter-label">Status</label>
+              <select class="filter-control">
+                <option>All Status</option>
+                <option>Present</option>
+                <option>Absent</option>
+                <option>Late</option>
+              </select>
+            </div>
+            
+            <div class="filter-group">
+              <label class="filter-label">Date Range</label>
+              <div class="date-range">
+                <input type="date" class="filter-control date-input" value="2025-05-01">
+                <span>to</span>
+                <input type="date" class="filter-control date-input" value="2025-05-05">
+              </div>
+            </div>
+          </div>
+          
+          <div class="filters-actions">
+            <button class="header-btn btn-outline">Reset</button>
+            <button class="header-btn btn-primary">Apply Filters</button>
+          </div>
+        </div>
+        
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-header">
+              <div class="stat-title">Average Attendance Rate</div>
+              <div class="stat-icon icon-present">📊</div>
+            </div>
+            <div class="stat-value">89.7%</div>
+            <div class="stat-subtext">Past 30 days</div>
+          </div>
+          
+          <div class="stat-card">
+            <div class="stat-header">
+              <div class="stat-title">Absence Rate</div>
+              <div class="stat-icon icon-absent">🚫</div>
+            </div>
+            <div class="stat-value">7.1%</div>
+            <div class="stat-subtext">3% decrease from previous month</div>
+          </div>
+          
+          <div class="stat-card">
+            <div class="stat-header">
+              <div class="stat-title">Tardiness Rate</div>
+              <div class="stat-icon icon-late">⏰</div>
+            </div>
+            <div class="stat-value">3.2%</div>
+            <div class="stat-subtext">1.5% decrease from previous month</div>
+          </div>
+          
+          <div class="stat-card">
+            <div class="stat-header">
+              <div class="stat-title">Perfect Attendance</div>
+              <div class="stat-icon icon-perfect">🏆</div>
+            </div>
+            <div class="stat-value">18</div>
+            <div class="stat-subtext">5 staff, 13 students</div>
+          </div>
+        </div>
+        
+        <!-- Tabs Container -->
+        <div class="tabs-container">
+          <div class="tabs-header">
+            <div class="tab active">All Members</div>
+            <div class="tab">Staff</div>
+            <div class="tab">Students</div>
+          </div>
+          
+          <!-- Staff Attendance Table -->
+          <div class="table-card">
+            <div class="table-header">
+              <h2 class="table-title">Staff Attendance Records</h2>
+              
+              <div class="table-actions">
+                <div class="action-icon">🔍</div>
+                <div class="action-icon">⬇️</div>
+                <div class="action-icon">🖨️</div>
+              </div>
+            </div>
+            
+            <table class="attendance-table">
+              <thead>
+                <tr>
+                  <th>Member</th>
+                  <th>Department</th>
+                  <th>Date</th>
+                  <th>Check In</th>
+                  <th>Check Out</th>
+                  <th>Status</th>
+                  <th>Total Hours</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- Staff Member 1 -->
+                <tr>
+                  <td>
+                    <div class="member-info">
+                      <div class="member-avatar staff-avatar">NK</div>
+                      <div>
+                        <div class="member-name">Natashia Khaleira</div>
+                        <div class="member-role">Special Education</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td>Special Education</td>
+                  <td>May 5, 2025</td>
+                  <td>08:30 AM</td>
+                  <td>04:45 PM</td>
+                  <td><span class="status-badge status-present">Present</span></td>
+                  <td>8.25</td>
+                  <td>···</td>
+                </tr>
+                
+                <!-- Staff Member 2 -->
+                <tr>
+                  <td>
+                    <div class="member-info">
+                      <div class="member-avatar staff-avatar">JD</div>
+                      <div>
+                        <div class="member-name">James Davis</div>
+                        <div class="member-role">Math Department</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td>Math Department</td>
+                  <td>May 5, 2025</td>
+                  <td>-</td>
+                  <td>-</td>
+                  <td><span class="status-badge status-absent">Absent</span></td>
+                  <td>0.00</td>
+                  <td>···</td>
+                </tr>
+                
+                <!-- Staff Member 3 -->
+                <tr>
+                  <td>
+                    <div class="member-info">
+                      <div class="member-avatar staff-avatar">SR</div>
+                      <div>
+                        <div class="member-name">Sarah Rodriguez</div>
+                        <div class="member-role">Science Department</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td>Science Department</td>
+                  <td>May 5, 2025</td>
+                  <td>09:15 AM</td>
+                  <td>05:00 PM</td>
+                  <td><span class="status-badge status-late">Late</span></td>
+                  <td>7.75</td>
+                  <td>···</td>
+                </tr>
+                
+                <!-- Staff Member 4 -->
+                <tr>
+                  <td>
+                    <div class="member-info">
+                      <div class="member-avatar staff-avatar">MJ</div>
+                      <div>
+                        <div class="member-name">Michael Johnson</div>
+                        <div class="member-role">Special Education</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td>Special Education</td>
+                  <td>May 5, 2025</td>
+                  <td>08:28 AM</td>
+                  <td>04:50 PM</td>
+                  <td><span class="status-badge status-present">Present</span></td>
+                  <td>8.37</td>
+                  <td>···</td>
+                </tr>
+                
+                <!-- Staff Member 5 -->
+                <tr>
+                  <td>
+                    <div class="member-info">
+                      <div class="member-avatar staff-avatar">LW</div>
+                      <div>
+                        <div class="member-name">Lisa Wilson</div>
+                        <div class="member-role">English Department</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td>English Department</td>
+                  <td>May 5, 2025</td>
+                  <td>08:45 AM</td>
+                  <td>04:30 PM</td>
+                  <td><span class="status-badge status-present">Present</span></td>
+                  <td>7.75</td>
+                  <td>···</td>
+                </tr>
+              </tbody>
+            </table>
+            
+            <div class="pagination">
+              <div class="page-info">Showing 1-5 of 15 records</div>
+              
+              <div class="page-buttons">
+                <button class="page-btn">«</button>
+                <button class="page-btn active">1</button>
+                <button class="page-btn">2</button>
+                <button class="page-btn">3</button>
+                <button class="page-btn">»</button>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Student Attendance Table -->
+          <div class="table-card">
+            <div class="table-header">
+              <h2 class="table-title">Student Attendance Records</h2>
+              
+              <div class="table-actions">
+                <div class="action-icon">🔍</div>
+                <div class="action-icon">⬇️</div>
+                <div class="action-icon">🖨️</div>
+              </div>
+            </div>
+            
+            <table class="attendance-table">
+              <thead>
+                <tr>
+                  <th>Student</th>
+                  <th>Grade/Class</th>
+                  <th>Date</th>
+                  <th>Check In</th>
+                  <th>Check Out</th>
+                  <th>Status</th>
+                  <th>Reported By</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- Student 1 -->
+                <tr>
+                  <td>
+                    <div class="member-info">
+                      <div class="member-avatar student-avatar">MT</div>
+                      <div>
+                        <div class="member-name">Michael Thompson</div>
+                        <div class="member-role">10th Grade</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td>10th Grade - Special Ed.</td>
+                  <td>May 5, 2025</td>
+                  <td>08:42 AM</td>
+                  <td>03:15 PM</td>
+                  <td><span class="status-badge status-late">Late</span></td>
+                  <td>N. Khaleira</td>
+                  <td>···</td>
+                </tr>
+                
+                <!-- Student 2 -->
+                <tr>
+                  <td>
+                    <div class="member-info">
+                      <div class="member-avatar student-avatar">JD</div>
+                      <div>
+                        <div class="member-name">Jennifer Davis</div>
+                        <div class="member-role">10th Grade</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td>10th Grade - Special Ed.</td>
+                  <td>May 5, 2025</td>
+                  <td>08:30 AM</td>
+                  <td>03:15 PM</td>
+                  <td><span class="status-badge status-present">Present</span></td>
+                  <td>N. Khaleira</td>
+                  <td>···</td>
+                </tr>
+                
+                <!-- Student 3 -->
+                <tr>
+                  <td>
+                    <div class="member-info">
+                      <div class="member-

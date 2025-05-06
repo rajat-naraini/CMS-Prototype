@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ChanceLight Grades Management</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary-color: #1cd6c9;
+      --primary-light: rgba(28, 214, 201, 0.1);
+      --secondary-color: #ff9f43;
+      --danger-color: #ff5c75;
+      --info-color: #5a8dee;
+      --success-color: #39da8a;
+      --sidebar-bg: #141414;
+      --main-bg: #1e1e1e;
+      --card-bg: #252525;
+      --card-hover: #2c2c2c;
+      --input-bg: #1e1e1e;
+      --text-primary: #ffffff;
+      --text-secondary: #b3b3b3;
+      --border-radius: 12px;
+      --border-radius-sm: 8px;
+      --border-radius-xs: 4px;
+      --grade-a: #39da8a;
+      --grade-b: #65d6e2;
+      --grade-c: #ffbd5b;
+      --grade-d: #ff9f87;
+      --grade-f: #ff5c75;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--main-bg);
+      color: var(--text-primary);
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .app-container {
+      display: flex;
+      height: 100vh;
+    }
+
+    /* Sidebar Styles */
+    .sidebar {
+      width: 260px;
+      height: 100%;
+      background-color: var(--sidebar-bg);
+      display: flex;
+      flex-direction: column;
+      padding: 20px 0;
+      overflow-y: auto;
+    }
+
+    .logo-container {
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      margin-bottom: 30px;
+    }
+
+    .logo {
+      width: 36px;
+      height: 36px;
+      background-color: var(--primary-color);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 12px;
+    }
+
+    .logo-icon {
+      color: black;
+      font-weight: bold;
+      font-size: 18px;
+    }
+
+    .menu-section {
+      margin-bottom: 30px;
+    }
+
+    .menu-title {
+      font-size: 12px;
+      color: var(--text-secondary);
+      padding: 0 20px;
+      margin-bottom: 10px;
+      font-weight: 600;
+    }
+
+    .menu-list {
+      list-style-type: none;
+    }
+
+    .menu-item {
+      display: flex;
+      align-items: center;
+      padding: 12px 20px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      color: var(--text-secondary);
+      position: relative;
+    }
+
+    .menu-item.active {
+      background-color: var(--primary-light);
+      color: var(--text-primary);
+      border-left: 3px solid var(--primary-color);
+    }
+
+    .menu-item:hover:not(.active) {
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+
+    .menu-icon {
+      margin-right: 12px;
+      font-size: 18px;
+    }
+
+    .menu-arrow {
+      margin-left: auto;
+      font-size: 18px;
+    }
+
+    .notification-badge {
+      margin-left: auto;
+      background-color: rgba(255, 77, 77, 0.9);
+      color: white;
+      min-width: 20px;
+      height: 20px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      padding: 0 6px;
+    }
+
+    /* Main Content Styles */
+    .main-content {
+      flex: 1;
+      padding: 24px;
+      overflow-y: auto;
+    }
+
+    .content-wrapper {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .page-title {
+      font-size: 24px;
+      font-weight: 700;
+    }
+
+    .page-subtitle {
+      color: var(--text-secondary);
+      font-size: 14px;
+      margin-top: 4px;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 12px;
+    }
+
+    .btn {
+      padding: 10px 16px;
+      border-radius: var(--border-radius-sm);
+      border: none;
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background-color: var(--primary-color);
+      color: black;
+    }
+
+    .btn-primary:hover {
+      background-color: #19c0b5;
+    }
+
+    .btn-outline {
+      background-color: transparent;
+      border: 1px solid var(--primary-color);
+      color: var(--primary-color);
+    }
+
+    .btn-outline:hover {
+      background-color: var(--primary-light);
+    }
+
+    .btn-success {
+      background-color: var(--success-color);
+      color: black;
+    }
+
+    .btn-success:hover {
+      background-color: #30c97d;
+    }
+
+    /* Grade Management Tabs */
+    .tabs-container {
+      margin-bottom: 24px;
+    }
+
+    .tabs-header {
+      display: flex;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      margin-bottom: 24px;
+    }
+
+    .tab {
+      padding: 12px 24px;
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.2s;
+      border-bottom: 2px solid transparent;
+    }
+
+    .tab.active {
+      color: var(--primary-color);
+      border-bottom-color: var(--primary-color);
+    }
+
+    .tab:hover:not(.active) {
+      color: var(--text-primary);
+    }
+
+    /* Selection Controls */
+    .selection-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 24px;
+      background-color: var(--card-bg);
+      padding: 20px;
+      border-radius: var(--border-radius);
+    }
+
+    .control-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .control-label {
+      font-size: 14px;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    .control-select {
+      padding: 10px 12px;
+      background-color: var(--input-bg);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: var(--border-radius-sm);
+      color: var(--text-primary);
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .control-select:focus {
+      outline: none;
+      border-color: var(--primary-color);
+    }
+
+    .select-options {
+      margin-top: 4px;
+      background-color: var(--card-bg);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: var(--border-radius-sm);
+      padding: 4px 0;
+    }
+
+    .select-option {
+      padding: 8px 12px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .select-option:hover {
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+
+    /* Grade Entry Section */
+    .grade-entry-section {
+      background-color: var(--card-bg);
+      border-radius: var(--border-radius);
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .section-title {
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .section-actions {
+      display: flex;
+      gap: 12px;
+    }
+
+    .grade-table-container {
+      overflow-x: auto;
+    }
+
+    .grade-table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 800px;
+    }
+
+    .grade-table th, .grade-table td {
+      padding: 16px;
+      text-align: left;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .grade-table th {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      position: sticky;
+      top: 0;
+      background-color: var(--card-bg);
+      z-index: 1;
+    }
+
+    .grade-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .grade-table tr:hover td {
+      background-color: rgba(255, 255, 255, 0.02);
+    }
+
+    .student-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .student-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background-color: rgba(255, 159, 67, 0.1);
+      color: var(--secondary-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .student-name {
+      font-weight: 500;
+    }
+
+    .grade-input {
+      width: 60px;
+      padding: 8px;
+      background-color: var(--input-bg);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: var(--border-radius-xs);
+      color: var(--text-primary);
+      font-family: 'Inter', sans-serif;
+      text-align: center;
+      font-size: 14px;
+    }
+
+    .grade-input:focus {
+      outline: none;
+      border-color: var(--primary-color);
+    }
+
+    .grade-badge {
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      text-align: center;
+      min-width: 60px;
+    }
+
+    .grade-a {
+      background-color: rgba(57, 218, 138, 0.15);
+      color: var(--grade-a);
+    }
+
+    .grade-b {
+      background-color: rgba(101, 214, 226, 0.15);
+      color: var(--grade-b);
+    }
+
+    .grade-c {
+      background-color: rgba(255, 189, 91, 0.15);
+      color: var(--grade-c);
+    }
+
+    .grade-d {
+      background-color: rgba(255, 159, 135, 0.15);
+      color: var(--grade-d);
+    }
+
+    .grade-f {
+      background-color: rgba(255, 92, 117, 0.15);
+      color: var(--grade-f);
+    }
+
+    .grade-na {
+      background-color: rgba(255, 255, 255, 0.05);
+      color: var(--text-secondary);
+    }
+
+    .grade-cell {
+      min-width: 80px;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .status-submitted {
+      background-color: rgba(57, 218, 138, 0.15);
+      color: var(--success-color);
+    }
+
+    .status-draft {
+      background-color: rgba(90, 141, 238, 0.15);
+      color: var(--info-color);
+    }
+
+    .grade-footer {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 24px;
+      gap: 12px;
+    }
+
+    /* Grade Statistics Section */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .stat-card {
+      background-color: var(--card-bg);
+      border-radius: var(--border-radius);
+      padding: 20px;
+      text-align: center;
+      transition: transform 0.2s;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-5px);
+    }
+
+    .stat-title {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-bottom: 12px;
+    }
+
+    .stat-value {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .grade-a-value {
+      color: var(--grade-a);
+    }
+
+    .grade-b-value {
+      color: var(--grade-b);
+    }
+
+    .grade-c-value {
+      color: var(--grade-c);
+    }
+
+    .grade-d-value {
+      color: var(--grade-d);
+    }
+
+    .grade-f-value {
+      color: var(--grade-f);
+    }
+
+    .stat-percent {
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    /* Grade Summary Section */
+    .grade-summary-section {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+
+    .summary-card {
+      background-color: var(--card-bg);
+      border-radius: var(--border-radius);
+      padding: 24px;
+    }
+
+    .chart-container {
+      height: 250px;
+      margin-top: 24px;
+      position: relative;
+    }
+
+    .chart-placeholder {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background-color: rgba(255, 255, 255, 0.02);
+      border-radius: var(--border-radius-sm);
+    }
+
+    .chart-placeholder-icon {
+      font-size: 32px;
+      color: var(--primary-color);
+      margin-bottom: 16px;
+    }
+
+    .chart-placeholder-text {
+      font-size: 14px;
+      color: var(--text-secondary);
+      text-align: center;
+    }
+
+    /* Grade History Section */
+    .grade-history-section {
+      background-color: var(--card-bg);
+      border-radius: var(--border-radius);
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+
+    .history-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .history-table th, .history-table td {
+      padding: 16px;
+      text-align: left;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .history-table th {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+
+    .history-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .history-table tr:hover td {
+      background-color: rgba(255, 255, 255, 0.02);
+    }
+
+    .action-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--border-radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+      background-color: rgba(255, 255, 255, 0.05);
+      color: var(--text-primary);
+    }
+
+    .action-icon:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .pagination {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 20px;
+    }
+
+    .page-info {
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    .page-controls {
+      display: flex;
+      gap: 8px;
+    }
+
+    .page-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--border-radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: rgba(255, 255, 255, 0.05);
+      color: var(--text-primary);
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+    }
+
+    .page-btn.active {
+      background-color: var(--primary-color);
+      color: black;
+    }
+
+    .page-btn:hover:not(.active) {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    /* Responsive Styles */
+    @media (max-width: 1200px) {
+      .stats-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+      
+      .grade-summary-section {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      
+      .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+      }
+      
+      .header-actions {
+        width: 100%;
+        justify-content: space-between;
+      }
+      
+      .selection-controls {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="logo-container">
+        <div class="logo">
+          <div class="logo-icon">C</div>
+        </div>
+        <h2>ChanceLight</h2>
+      </div>
+      
+      <div class="menu-section">
+        <h3 class="menu-title">MAIN MENU</h3>
+        <ul class="menu-list">
+          <li class="menu-item">
+            <span class="menu-icon">📊</span>
+            <a href="index.html" style="text-decoration: none; color: #b3b3b3;">Dashboard</a>
+          </li>
+          <li class="menu-item">
+            <span class="menu-icon">📋</span>
+            <a href="attendance-review-page.html" style="text-decoration: none; color: #b3b3b3;">Attendance</a>
+          </li>
+          <li class="menu-item">
+            <span class="menu-icon">👥</span>
+            <a href="roster-management-page.html" style="text-decoration: none; color: #b3b3b3;">Roster Management</a>
+          </li>
+          <li class="menu-item active">
+            <span class="menu-icon">📝</span>
+            <a href="grades-management-page.html" style="text-decoration: none; color: #b3b3b3;">Grades</a>
+          </li>
+          <li class="menu-item">
+            <span class="menu-icon">📅</span>
+            <a href="course-schedule-page.html" style="text-decoration: none; color: #b3b3b3;">Schedule</a>
+          </li>
+          <li class="menu-item">
+            <span class="menu-icon">💬</span>
+            <a href="parent-communication-page.html" style="text-decoration: none; color: #b3b3b3;">Parent Communication</a>
+          </li>
+          <li class="menu-item">
+            <span class="menu-icon">📈</span>
+            <a href="behavior-tracking-page.html" style="text-decoration: none; color: #b3b3b3;">Behavior Tracking</a>
+          </li>
+          <li class="menu-item">
+            <span class="menu-icon">🔔</span>
+            <a href="notification-page.html" style="text-decoration: none; color: #b3b3b3;">Notifications</a>
+            <span class="notification-badge">8</span>
+          </li>
+        </ul>
+      </div>
+      
+      <div class="menu-section">
+        <h3 class="menu-title">SETTINGS</h3>
+        <ul class="menu-list">
+          <li class="menu-item">
+            <span class="menu-icon">⚙️</span>
+            <span>Settings</span>
+            <span class="menu-arrow">›</span>
+          </li>
+          <li class="menu-item">
+            <span class="menu-icon">❓</span>
+            <span>Help Center</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <div class="content-wrapper">
+        <!-- Page Header -->
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">Grades Management</h1>
+            <p class="page-subtitle">Enter and review student grades for assignments and exams</p>
+          </div>
+          
+          <div class="header-actions">
+            <button class="btn btn-outline">
+              <span>📥</span>
+              <span>Import Grades</span>
+            </button>
+            <button class="btn btn-outline">
+              <span>📤</span>
+              <span>Export Grades</span>
+            </button>
+            <button class="btn btn-primary">
+              <span>➕</span>
+              <span>New Assessment</span>
+            </button>
+          </div>
+        </div>
+        
+        <!-- Tabs Container -->
+        <div class="tabs-container">
+          <div class="tabs-header">
+            <div class="tab active">Grade Entry</div>
+            <div class="tab">Grade Review</div>
+            <div class="tab">Grade History</div>
+            <div class="tab">Reports</div>
+          </div>
+          
+          <!-- Selection Controls -->
+          <div class="selection-controls">
+            <div class="control-group">
+              <label class="control-label">Class/Section</label>
+              <select class="control-select">
+                <option>10th Grade - Special Education</option>
+                <option>11th Grade - Math</option>
+                <option>9th Grade - Science</option>
+                <option>12th Grade - English</option>
+              </select>
+            </div>
+            
+            <div class="control-group">
+              <label class="control-label">Subject</label>
+              <select class="control-select">
+                <option>Mathematics</option>
+                <option>Science</option>
+                <option>English</option>
+                <option>Social Studies</option>
+              </select>
+            </div>
+            
+            <div class="control-group">
+              <label class="control-label">Assessment</label>
+              <select class="control-select">
+                <option>Mid-Term Exam</option>
+                <option>Quiz #3</option>
+                <option>Final Project</option>
+                <option>Homework Assignment #5</option>
+              </select>
+            </div>
+            
+            <div class="control-group">
+              <label class="control-label">Grading Period</label>
+              <select class="control-select">
+                <option>Q2 2025 (Current)</option>
+                <option>Q1 2025</option>
+                <option>Q4 2024</option>
+                <option>Q3 2024</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Grade Entry Section -->
+        <div class="grade-entry-section">
+          <div class="section-header">
+            <h2 class="section-title">Mid-Term Exam Grades - Mathematics</h2>
+            <div class="section-actions">
+              <button class="btn btn-outline">
+                <span>🔄</span>
+                <span>Reset</span>
+              </button>
+              <button class="btn btn-success">
+                <span>💾</span>
+                <span>Save Draft</span>
+              </button>
+              <button class="btn btn-primary">
+                <span>✓</span>
+                <span>Submit Grades</span>
+              </button>
+            </div>
+          </div>
+          
+          <div class="grade-table-container">
+            <table class="grade-table">
+              <thead>
+                <tr>
+                  <th>Student</th>
+                  <th>ID</th>
+                  <th>Points (0-100)</th>
+                  <th>Letter Grade</th>
+                  <th>Comments</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- Student 1 -->
+                <tr>
+                  <td>
+                    <div class="student-info">
+                      <div class="student-avatar">MT</div>
+                      <div class="student-name">Michael Thompson</div>
+                    </div>
+                  </td>
+                  <td>ST-10251</td>
+                  <td class="grade-cell">
+                    <input type="text" class="grade-input" value="92">
+                  </td>
+                  <td class="grade-cell">
+                    <span class="grade-badge grade-a">A</span>
+                  </td>
+                  <td>
+                    <input type="text" class="grade-input" style="width: 100%;" value="Excellent work on problem-solving sections.">
+                  </td>
+                </tr>
+                
+                <!-- Student 2 -->
+                <tr>
+                  <td>
+                    <div class="student-info">
+                      <div class="student-avatar">SJ</div>
+                      <div class="student-name">Sarah Johnson</div>
+                    </div>
+                  </td>
+                  <td>ST-10252</td>
+                  <td class="grade-cell">
+                    <input type="text" class="grade-input" value="85">
+                  </td>
+                  <td class="grade-cell">
+                    <span class="grade-badge grade-b">B</span>
+                  </td>
+                  <td>
+                    <input type="text" class="grade-input" style="width: 100%;" value="Good understanding of concepts.">
+                  </td>
+                </tr>
+                
+                <!-- Student 3 -->
+                <tr>
+                  <td>
+                    <div class="student-info">
+                      <div class="student-avatar">RW</div>
+                      <div class="student-name">Robert Williams</div>
+                    </div>
+                  </td>
+                  <td>ST-10253</td>
+                  <td class="grade-cell">
+                    <input type="text" class="grade-input" value="75">
+                  </td>
+                  <td class="grade-cell">
+                    <span class="grade-badge grade-c">C</span>
+                  </td>
+                  <td>
+                    <input type="text" class="grade-input" style="width: 100%;" value="Needs to work on geometric principles.">
+                  </td>
+                </tr>
+                
+                <!-- Student 4 -->
+                <tr>
+                  <td>
+                    <div class="student-info">
+                      <div class="student-avatar">JD</div>
+                      <div class="student-name">Jennifer Davis</div>
+                    </div>
+                  </td>
+                  <td>ST-10254</td>
+                  <td class="grade-cell">
+                    <input type="text" class="grade-input" value="95">
+                  </td>
+                  <td class="grade-cell">
+                    <span class="grade-badge grade-a">A</span>
+                  </td>
+                  <td>
+                    <input type="text" class="grade-input" style="width: 100%;" value="Outstanding performance.">
+                  </td>
+                </tr>
+                
+                <!-- Student 5 -->
+                <tr>
+                  <td>
+                    <div class="student-info">
+                      <div class="student-avatar">KL</div>
+                      <div class="student-name">Kevin Lee</div>
+                    </div>
+                  </td>
+                  <td>ST-10255</td>
+                  <td class="grade-cell">
+                    <input type="text" class="grade-input" value="68">
+                  </td>
+                  <td class="grade-cell">
+                    <span class="grade-badge grade-d">D</span>
+                  </td>
+                  <td>
+                    <input type="text" class="grade-input" style="width: 100%;" value="Needs additional support with algebra.">
+                  </td>
+                </tr>
+                
+                <!-- Student 6 -->
+                <tr>
+                  <td>
+                    <div class="student-info">
+                      <div class="student-avatar">AS</div>
+                      <div class="student-name">Amanda Smith</div>
+                    </div>
+                  </td>
+                  <td>ST-10256</td>
+                  <td class="grade-cell">
+                    <input type="text" class="grade-input" value="78">
+                  </td>
+                  <td class="grade-cell">
+                    <span class="grade-badge grade-c">C</span>
+                  </td>
+                  <td>
+                    <input type="text" class="grade-input" style="width: 100%;" value="

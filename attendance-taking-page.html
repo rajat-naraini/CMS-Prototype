@@ -1,0 +1,1100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ChanceLight Attendance Manager</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary-color: #1cd6c9;
+      --primary-light: rgba(28, 214, 201, 0.1);
+      --secondary-color: #ff9f43;
+      --danger-color: #ff5c75;
+      --info-color: #5a8dee;
+      --success-color: #39da8a;
+      --sidebar-bg: #141414;
+      --main-bg: #1e1e1e;
+      --card-bg: #252525;
+      --card-hover: #2c2c2c;
+      --text-primary: #ffffff;
+      --text-secondary: #b3b3b3;
+      --border-radius: 12px;
+      --border-radius-sm: 8px;
+      --on-time: #1cd6c9;
+      --present: #39da8a;
+      --absent: #ff4d4d;
+      --late: #ffad0f;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--main-bg);
+      color: var(--text-primary);
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .app-container {
+      display: flex;
+      height: 100vh;
+    }
+
+    /* Sidebar Styles */
+    .sidebar {
+      width: 260px;
+      height: 100%;
+      background-color: var(--sidebar-bg);
+      display: flex;
+      flex-direction: column;
+      padding: 20px 0;
+      overflow-y: auto;
+    }
+
+    .logo-container {
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      margin-bottom: 30px;
+    }
+
+    .logo {
+      width: 36px;
+      height: 36px;
+      background-color: var(--primary-color);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 12px;
+    }
+
+    .logo-icon {
+      color: black;
+      font-weight: bold;
+      font-size: 18px;
+    }
+
+    .menu-section {
+      margin-bottom: 30px;
+    }
+
+    .menu-title {
+      font-size: 12px;
+      color: var(--text-secondary);
+      padding: 0 20px;
+      margin-bottom: 10px;
+      font-weight: 600;
+    }
+
+    .menu-list {
+      list-style-type: none;
+    }
+
+    .menu-item {
+      display: flex;
+      align-items: center;
+      padding: 12px 20px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      color: var(--text-secondary);
+      position: relative;
+    }
+
+    .menu-item.active {
+      background-color: var(--primary-light);
+      color: var(--text-primary);
+      border-left: 3px solid var(--primary-color);
+    }
+
+    .menu-item:hover:not(.active) {
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+
+    .menu-icon {
+      margin-right: 12px;
+      font-size: 18px;
+    }
+
+    .menu-arrow {
+      margin-left: auto;
+      font-size: 18px;
+    }
+
+    .notification-badge {
+      margin-left: auto;
+      background-color: rgba(255, 77, 77, 0.9);
+      color: white;
+      min-width: 20px;
+      height: 20px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      padding: 0 6px;
+    }
+
+    /* Main Content Styles */
+    .main-content {
+      flex: 1;
+      padding: 24px;
+      overflow-y: auto;
+    }
+
+    .content-wrapper {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .page-title {
+      font-size: 24px;
+      font-weight: 700;
+    }
+
+    .page-subtitle {
+      color: var(--text-secondary);
+      font-size: 14px;
+      margin-top: 4px;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 12px;
+    }
+
+    .header-btn {
+      padding: 8px 16px;
+      border-radius: 6px;
+      border: none;
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background-color: var(--primary-color);
+      color: black;
+    }
+
+    .btn-primary:hover {
+      background-color: #19c0b5;
+    }
+
+    .btn-outline {
+      background-color: transparent;
+      border: 1px solid var(--primary-color);
+      color: var(--primary-color);
+    }
+
+    .btn-outline:hover {
+      background-color: var(--primary-light);
+    }
+
+    /* Attendance Grid */
+    .attendance-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      height: calc(100vh - 140px);
+    }
+
+    .attendance-list-section {
+      background-color: var(--card-bg);
+      border-radius: var(--border-radius);
+      padding: 20px;
+      overflow-y: auto;
+      scrollbar-width: thin; /* For Firefox */
+      scrollbar-color: var(--primary-color) rgba(255, 255, 255, 0.1); /* For Firefox */
+    }
+
+    /* For Webkit-based browsers (Chrome, Edge, Safari) */
+    .attendance-list-section::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .attendance-list-section::-webkit-scrollbar-thumb {
+      background-color: var(--primary-color);
+      border-radius: 4px;
+    }
+
+    .attendance-list-section::-webkit-scrollbar-track {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .section-title {
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .search-bar {
+      position: relative;
+      margin-bottom: 16px;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 10px 16px 10px 40px;
+      background-color: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: var(--border-radius-sm);
+      color: var(--text-primary);
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: var(--primary-color);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-secondary);
+    }
+
+    .class-selector {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    .class-item {
+      padding: 6px 12px;
+      background-color: rgba(255, 255, 255, 0.05);
+      border-radius: 20px;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .class-item.active {
+      background-color: var(--primary-color);
+      color: black;
+    }
+
+    .class-item:hover:not(.active) {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .timestamp {
+      color: var(--text-secondary);
+      font-size: 13px;
+      margin-bottom: 16px;
+    }
+
+    .attendance-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .student-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 16px;
+      background-color: rgba(255, 255, 255, 0.05);
+      border-radius: var(--border-radius-sm);
+      transition: all 0.2s;
+    }
+
+    .student-item:hover {
+      background-color: rgba(255, 255, 255, 0.08);
+    }
+
+    .student-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .student-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background-color: var(--primary-light);
+      color: var(--primary-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 16px;
+    }
+
+    .student-name {
+      font-weight: 500;
+      margin-bottom: 2px;
+    }
+
+    .student-id {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .attendance-buttons {
+      display: flex;
+      gap: 8px;
+    }
+
+    .attendance-btn {
+      padding: 6px 12px;
+      border-radius: 4px;
+      border: none;
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-present {
+      background-color: rgba(57, 218, 138, 0.1);
+      color: var(--present);
+      border: 1px solid rgba(57, 218, 138, 0.3);
+    }
+
+    .btn-present.active, .btn-present:hover {
+      background-color: var(--present);
+      color: black;
+    }
+
+    .btn-absent {
+      background-color: rgba(255, 77, 77, 0.1);
+      color: var(--absent);
+      border: 1px solid rgba(255, 77, 77, 0.3);
+    }
+
+    .btn-absent.active, .btn-absent:hover {
+      background-color: var(--absent);
+      color: black;
+    }
+
+    .btn-late {
+      background-color: rgba(255, 173, 15, 0.1);
+      color: var(--late);
+      border: 1px solid rgba(255, 173, 15, 0.3);
+    }
+
+    .btn-late.active, .btn-late:hover {
+      background-color: var(--late);
+      color: black;
+    }
+
+    /* Visual Representation Section */
+    .classroom-visualization {
+      background-color: var(--card-bg);
+      border-radius: var(--border-radius);
+      padding: 20px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .classroom-controls {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .classroom-legend {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .color-indicator {
+      width: 16px;
+      height: 16px;
+      border-radius: 4px;
+    }
+
+    .color-present {
+      background-color: var(--present);
+    }
+
+    .color-absent {
+      background-color: var(--absent);
+    }
+
+    .color-late {
+      background-color: var(--late);
+    }
+
+    .color-empty {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .classroom-view {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 30px;
+    }
+
+    .teacher-desk {
+      width: 180px;
+      height: 60px;
+      background-color: rgba(90, 141, 238, 0.2);
+      border: 2px solid var(--info-color);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 500;
+      color: var(--info-color);
+      margin-bottom: 20px;
+    }
+
+    .seats-container {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      width: 100%;
+    }
+
+    .row {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+    }
+
+    .seat {
+      width: 60px;
+      height: 60px;
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.2s;
+    }
+
+    .seat-present {
+      background-color: rgba(57, 218, 138, 0.2);
+      border: 2px solid var(--present);
+    }
+
+    .seat-absent {
+      background-color: rgba(255, 77, 77, 0.2);
+      border: 2px solid var(--absent);
+    }
+
+    .seat-late {
+      background-color: rgba(255, 173, 15, 0.2);
+      border: 2px solid var(--late);
+    }
+
+    .seat-empty {
+      background-color: rgba(255, 255, 255, 0.05);
+      border: 2px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .seat:hover:not(.seat-empty) {
+      transform: translateY(-5px);
+    }
+
+    .seat-number {
+      position: absolute;
+      top: 5px;
+      left: 5px;
+      font-size: 10px;
+      color: var(--text-secondary);
+    }
+
+    .seat-initials {
+      font-weight: 600;
+      font-size: 16px;
+      margin-bottom: 2px;
+    }
+
+    .seat-status {
+      font-size: 10px;
+      font-weight: 500;
+    }
+
+    .seat-present .seat-status {
+      color: var(--present);
+    }
+
+    .seat-absent .seat-status {
+      color: var(--absent);
+    }
+
+    .seat-late .seat-status {
+      color: var(--late);
+    }
+
+    .classroom-footer {
+      margin-top: 30px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .attendance-summary {
+      display: flex;
+      gap: 16px;
+      margin-top: 16px;
+    }
+
+    .summary-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .summary-value {
+      font-size: 24px;
+      font-weight: 600;
+    }
+
+    .summary-label {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .summary-present .summary-value {
+      color: var(--present);
+    }
+
+    .summary-absent .summary-value {
+      color: var(--absent);
+    }
+
+    .summary-late .summary-value {
+      color: var(--late);
+    }
+
+    .submit-btn {
+      padding: 10px 20px;
+      background-color: var(--primary-color);
+      color: black;
+      border: none;
+      border-radius: 6px;
+      font-family: 'Inter', sans-serif;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: 20px;
+    }
+
+    .submit-btn:hover {
+      background-color: #19c0b5;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="logo-container">
+        <div class="logo">
+          <div class="logo-icon">C</div>
+        </div>
+        <h2>ChanceLight</h2>
+      </div>
+      
+      <div class="menu-section">
+        <h3 class="menu-title">MAIN MENU</h3>
+        <ul class="menu-list">
+          <li class="menu-item">
+            <span class="menu-icon">📊</span>
+            <a href="index.html" style="text-decoration: none; color: #b3b3b3;">Dashboard</a>
+          </li>
+          <li class="menu-item active">
+            <span class="menu-icon">📋</span>
+            <a href="attendance-review-page.html" style="text-decoration: none; color: #b3b3b3;">Attendance</a>
+          </li>
+          <li class="menu-item">
+            <span class="menu-icon">👥</span>
+            <a href="roster-management-page.html" style="text-decoration: none; color: #b3b3b3;">Roster Management</a>
+          </li>
+          <li class="menu-item">
+            <span class="menu-icon">📝</span>
+            <a href="grades-management-page.html" style="text-decoration: none; color: #b3b3b3;">Grades</a>
+          </li>
+          <li class="menu-item">
+            <span class="menu-icon">📅</span>
+            <a href="course-schedule-page.html" style="text-decoration: none; color: #b3b3b3;">Schedule</a>
+          </li>
+          <li class="menu-item">
+            <span class="menu-icon">💬</span>
+            <a href="parent-communication-page.html" style="text-decoration: none; color: #b3b3b3;">Parent Communication</a>
+          </li>
+          <li class="menu-item">
+            <span class="menu-icon">📈</span>
+            <a href="behavior-tracking-page.html" style="text-decoration: none; color: #b3b3b3;">Behavior Tracking</a>
+          </li>
+          <li class="menu-item">
+            <span class="menu-icon">🔔</span>
+            <a href="notification-page.html" style="text-decoration: none; color: #b3b3b3;">Notifications</a>
+            <span class="notification-badge">8</span>
+          </li>
+        </ul>
+      </div>
+      
+      <div class="menu-section">
+        <h3 class="menu-title">SETTINGS</h3>
+        <ul class="menu-list">
+          <li class="menu-item">
+            <span class="menu-icon">⚙️</span>
+            <span>Settings</span>
+            <span class="menu-arrow">›</span>
+          </li>
+          <li class="menu-item">
+            <span class="menu-icon">❓</span>
+            <span>Help Center</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <div class="content-wrapper">
+        <!-- Page Header -->
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">Take Attendance</h1>
+            <p class="page-subtitle">Record daily attendance for classes and students</p>
+          </div>
+          
+          <div class="header-actions">
+            <button class="header-btn btn-outline">
+              <span>📅</span>
+              <span>Change Date</span>
+            </button>
+            <button class="header-btn btn-primary">
+              <span>💾</span>
+              <span>Save All</span>
+            </button>
+          </div>
+        </div>
+        
+        <!-- Attendance Container -->
+        <div class="attendance-container">
+          <!-- Left Section: Attendance List -->
+          <div class="attendance-list-section">
+            <div class="section-header">
+              <h2 class="section-title">Student List</h2>
+              <div>May 5, 2025</div>
+            </div>
+            
+            <div class="search-bar">
+              <span class="search-icon">🔍</span>
+              <input type="text" class="search-input" placeholder="Search students...">
+            </div>
+            
+            <div class="class-selector">
+              <div class="class-item">All Classes</div>
+              <div class="class-item active">Special Ed. 10th</div>
+              <div class="class-item">Math 11th</div>
+              <div class="class-item">Science 9th</div>
+              <div class="class-item">English 12th</div>
+            </div>
+            
+            <div class="timestamp">
+              <strong>Special Education - 10th Grade</strong> | Period 2 (9:30 AM - 10:45 AM)
+            </div>
+            
+            <div class="attendance-list">
+              <!-- Student 1 -->
+              <div class="student-item">
+                <div class="student-info">
+                  <div class="student-avatar">MT</div>
+                  <div>
+                    <div class="student-name">Michael Thompson</div>
+                    <div class="student-id">ID: ST-10251</div>
+                  </div>
+                </div>
+                
+                <div class="attendance-buttons">
+                  <button class="attendance-btn btn-present active">Present</button>
+                  <button class="attendance-btn btn-late">Late</button>
+                  <button class="attendance-btn btn-absent">Absent</button>
+                </div>
+              </div>
+              
+              <!-- Student 2 -->
+              <div class="student-item">
+                <div class="student-info">
+                  <div class="student-avatar">SJ</div>
+                  <div>
+                    <div class="student-name">Sarah Johnson</div>
+                    <div class="student-id">ID: ST-10252</div>
+                  </div>
+                </div>
+                
+                <div class="attendance-buttons">
+                  <button class="attendance-btn btn-present">Present</button>
+                  <button class="attendance-btn btn-late active">Late</button>
+                  <button class="attendance-btn btn-absent">Absent</button>
+                </div>
+              </div>
+              
+              <!-- Student 3 -->
+              <div class="student-item">
+                <div class="student-info">
+                  <div class="student-avatar">RW</div>
+                  <div>
+                    <div class="student-name">Robert Williams</div>
+                    <div class="student-id">ID: ST-10253</div>
+                  </div>
+                </div>
+                
+                <div class="attendance-buttons">
+                  <button class="attendance-btn btn-present">Present</button>
+                  <button class="attendance-btn btn-late">Late</button>
+                  <button class="attendance-btn btn-absent active">Absent</button>
+                </div>
+              </div>
+              
+              <!-- Student 4 -->
+              <div class="student-item">
+                <div class="student-info">
+                  <div class="student-avatar">JD</div>
+                  <div>
+                    <div class="student-name">Jennifer Davis</div>
+                    <div class="student-id">ID: ST-10254</div>
+                  </div>
+                </div>
+                
+                <div class="attendance-buttons">
+                  <button class="attendance-btn btn-present active">Present</button>
+                  <button class="attendance-btn btn-late">Late</button>
+                  <button class="attendance-btn btn-absent">Absent</button>
+                </div>
+              </div>
+              
+              <!-- Student 5 -->
+              <div class="student-item">
+                <div class="student-info">
+                  <div class="student-avatar">KL</div>
+                  <div>
+                    <div class="student-name">Kevin Lee</div>
+                    <div class="student-id">ID: ST-10255</div>
+                  </div>
+                </div>
+                
+                <div class="attendance-buttons">
+                  <button class="attendance-btn btn-present active">Present</button>
+                  <button class="attendance-btn btn-late">Late</button>
+                  <button class="attendance-btn btn-absent">Absent</button>
+                </div>
+              </div>
+              
+              <!-- Student 6 -->
+              <div class="student-item">
+                <div class="student-info">
+                  <div class="student-avatar">AS</div>
+                  <div>
+                    <div class="student-name">Amanda Smith</div>
+                    <div class="student-id">ID: ST-10256</div>
+                  </div>
+                </div>
+                
+                <div class="attendance-buttons">
+                  <button class="attendance-btn btn-present">Present</button>
+                  <button class="attendance-btn btn-late">Late</button>
+                  <button class="attendance-btn btn-absent active">Absent</button>
+                </div>
+              </div>
+              
+              <!-- Student 7 -->
+              <div class="student-item">
+                <div class="student-info">
+                  <div class="student-avatar">TB</div>
+                  <div>
+                    <div class="student-name">Tyler Brown</div>
+                    <div class="student-id">ID: ST-10257</div>
+                  </div>
+                </div>
+                
+                <div class="attendance-buttons">
+                  <button class="attendance-btn btn-present active">Present</button>
+                  <button class="attendance-btn btn-late">Late</button>
+                  <button class="attendance-btn btn-absent">Absent</button>
+                </div>
+              </div>
+              
+              <!-- Student 8 -->
+              <div class="student-item">
+                <div class="student-info">
+                  <div class="student-avatar">EP</div>
+                  <div>
+                    <div class="student-name">Emily Parker</div>
+                    <div class="student-id">ID: ST-10258</div>
+                  </div>
+                </div>
+                
+                <div class="attendance-buttons">
+                  <button class="attendance-btn btn-present">Present</button>
+                  <button class="attendance-btn btn-late active">Late</button>
+                  <button class="attendance-btn btn-absent">Absent</button>
+                </div>
+              </div>
+              
+              <!-- Student 9 -->
+              <div class="student-item">
+                <div class="student-info">
+                  <div class="student-avatar">RM</div>
+                  <div>
+                    <div class="student-name">Ryan Martinez</div>
+                    <div class="student-id">ID: ST-10259</div>
+                  </div>
+                </div>
+                
+                <div class="attendance-buttons">
+                  <button class="attendance-btn btn-present active">Present</button>
+                  <button class="attendance-btn btn-late">Late</button>
+                  <button class="attendance-btn btn-absent">Absent</button>
+                </div>
+              </div>
+              
+              <!-- Student 10 -->
+              <div class="student-item">
+                <div class="student-info">
+                  <div class="student-avatar">CH</div>
+                  <div>
+                    <div class="student-name">Chloe Harris</div>
+                    <div class="student-id">ID: ST-10260</div>
+                  </div>
+                </div>
+                
+                <div class="attendance-buttons">
+                  <button class="attendance-btn btn-present active">Present</button>
+                  <button class="attendance-btn btn-late">Late</button>
+                  <button class="attendance-btn btn-absent">Absent</button>
+                </div>
+              </div>
+              
+              <!-- Student 11 -->
+              <div class="student-item">
+                <div class="student-info">
+                  <div class="student-avatar">DT</div>
+                  <div>
+                    <div class="student-name">Daniel Turner</div>
+                    <div class="student-id">ID: ST-10261</div>
+                  </div>
+                </div>
+                
+                <div class="attendance-buttons">
+                  <button class="attendance-btn btn-present">Present</button>
+                  <button class="attendance-btn btn-late">Late</button>
+                  <button class="attendance-btn btn-absent active">Absent</button>
+                </div>
+              </div>
+              
+              <!-- Student 12 -->
+              <div class="student-item">
+                <div class="student-info">
+                  <div class="student-avatar">OC</div>
+                  <div>
+                    <div class="student-name">Olivia Clark</div>
+                    <div class="student-id">ID: ST-10262</div>
+                  </div>
+                </div>
+                
+                <div class="attendance-buttons">
+                  <button class="attendance-btn btn-present active">Present</button>
+                  <button class="attendance-btn btn-late">Late</button>
+                  <button class="attendance-btn btn-absent">Absent</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Right Section: Classroom Visualization -->
+          <div class="classroom-visualization">
+            <div class="section-header">
+              <h2 class="section-title">Classroom View</h2>
+              <div>Special Education - 10th Grade</div>
+            </div>
+            
+            <div class="classroom-controls">
+              <div class="classroom-legend">
+                <div class="legend-item">
+                  <div class="color-indicator color-present"></div>
+                  <span>Present</span>
+                </div>
+                <div class="legend-item">
+                  <div class="color-indicator color-absent"></div>
+                  <span>Absent</span>
+                </div>
+                <div class="legend-item">
+                  <div class="color-indicator color-late"></div>
+                  <span>Late</span>
+                </div>
+                <div class="legend-item">
+                  <div class="color-indicator color-empty"></div>
+                  <span>Empty Seat</span>
+                </div>
+              </div>
+            </div>
+            
+            <div class="classroom-view">
+              <!-- Seats Container - Now At Top -->
+              <div class="seats-container">
+                <!-- Row 4 (Now Row 1 visually) -->
+                <div class="row">
+                  <div class="seat seat-empty">
+                    <div class="seat-number">16</div>
+                  </div>
+                  <div class="seat seat-empty">
+                    <div class="seat-number">15</div>
+                  </div>
+                  <div class="seat seat-empty">
+                    <div class="seat-number">14</div>
+                  </div>
+                  <div class="seat seat-empty">
+                    <div class="seat-number">13</div>
+                  </div>
+                </div>
+                
+                <!-- Row 3 -->
+                <div class="row">
+                  <div class="seat seat-present">
+                    <div class="seat-number">12</div>
+                    <div class="seat-initials">OC</div>
+                    <div class="seat-status">Present</div>
+                  </div>
+                  <div class="seat seat-absent">
+                    <div class="seat-number">11</div>
+                    <div class="seat-initials">DT</div>
+                    <div class="seat-status">Absent</div>
+                  </div>
+                  <div class="seat seat-present">
+                    <div class="seat-number">10</div>
+                    <div class="seat-initials">CH</div>
+                    <div class="seat-status">Present</div>
+                  </div>
+                  <div class="seat seat-present">
+                    <div class="seat-number">9</div>
+                    <div class="seat-initials">RM</div>
+                    <div class="seat-status">Present</div>
+                  </div>
+                </div>
+                
+                <!-- Row 2 -->
+                <div class="row">
+                  <div class="seat seat-late">
+                    <div class="seat-number">8</div>
+                    <div class="seat-initials">EP</div>
+                    <div class="seat-status">Late</div>
+                  </div>
+                  <div class="seat seat-present">
+                    <div class="seat-number">7</div>
+                    <div class="seat-initials">TB</div>
+                    <div class="seat-status">Present</div>
+                  </div>
+                  <div class="seat seat-absent">
+                    <div class="seat-number">6</div>
+                    <div class="seat-initials">AS</div>
+                    <div class="seat-status">Absent</div>
+                  </div>
+                  <div class="seat seat-present">
+                    <div class="seat-number">5</div>
+                    <div class="seat-initials">KL</div>
+                    <div class="seat-status">Present</div>
+                  </div>
+                </div>
+                
+                <!-- Row 1 (Now visually closest to teacher) -->
+                <div class="row">
+                  <div class="seat seat-present">
+                    <div class="seat-number">4</div>
+                    <div class="seat-initials">JD</div>
+                    <div class="seat-status">Present</div>
+                  </div>
+                  <div class="seat seat-absent">
+                    <div class="seat-number">3</div>
+                    <div class="seat-initials">RW</div>
+                    <div class="seat-status">Absent</div>
+                  </div>
+                  <div class="seat seat-late">
+                    <div class="seat-number">2</div>
+                    <div class="seat-initials">SJ</div>
+                    <div class="seat-status">Late</div>
+                  </div>
+                  <div class="seat seat-present">
+                    <div class="seat-number">1</div>
+                    <div class="seat-initials">MT</div>
+                    <div class="seat-status">Present</div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Teacher's Desk - Now at Bottom -->
+              <div class="teacher-desk">Teacher's Desk</div>
+            </div>
+            
+            <div class="classroom-footer">
+              <div class="attendance-summary">
+                <div class="summary-item summary-present">
+                  <div class="summary-value">8</div>
+                  <div class="summary-label">Present</div>
+                </div>
+                <div class="summary-item summary-absent">
+                  <div class="summary-value">3</div>
+                  <div class="summary-label">Absent</div>
+                </div>
+                <div class="summary-item summary-late">
+                  <div class="summary-value">2</div>
+                  <div class="summary-label">Late</div>
+                </div>
+              </div>
+            </div>
+            
+            <button class="submit-btn">Submit Attendance</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

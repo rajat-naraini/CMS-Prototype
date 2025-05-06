@@ -1,0 +1,1493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ChanceLight Roster Management</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary-color: #1cd6c9;
+      --primary-light: rgba(28, 214, 201, 0.1);
+      --secondary-color: #ff9f43;
+      --danger-color: #ff5c75;
+      --info-color: #5a8dee;
+      --success-color: #39da8a;
+      --sidebar-bg: #141414;
+      --main-bg: #1e1e1e;
+      --card-bg: #252525;
+      --card-hover: #2c2c2c;
+      --text-primary: #ffffff;
+      --text-secondary: #b3b3b3;
+      --border-radius: 12px;
+      --border-radius-sm: 8px;
+      --border-radius-xs: 4px;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--main-bg);
+      color: var(--text-primary);
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .app-container {
+      display: flex;
+      height: 100vh;
+    }
+
+    /* Sidebar Styles */
+    .sidebar {
+      width: 260px;
+      height: 100%;
+      background-color: var(--sidebar-bg);
+      display: flex;
+      flex-direction: column;
+      padding: 20px 0;
+      overflow-y: auto;
+    }
+
+    .logo-container {
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      margin-bottom: 30px;
+    }
+
+    .logo {
+      width: 36px;
+      height: 36px;
+      background-color: var(--primary-color);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 12px;
+    }
+
+    .logo-icon {
+      color: black;
+      font-weight: bold;
+      font-size: 18px;
+    }
+
+    .menu-section {
+      margin-bottom: 30px;
+    }
+
+    .menu-title {
+      font-size: 12px;
+      color: var(--text-secondary);
+      padding: 0 20px;
+      margin-bottom: 10px;
+      font-weight: 600;
+    }
+
+    .menu-list {
+      list-style-type: none;
+    }
+
+    .menu-item {
+      display: flex;
+      align-items: center;
+      padding: 12px 20px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      color: var(--text-secondary);
+      position: relative;
+    }
+
+    .menu-item.active {
+      background-color: var(--primary-light);
+      color: var(--text-primary);
+      border-left: 3px solid var(--primary-color);
+    }
+
+    .menu-item:hover:not(.active) {
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+
+    .menu-icon {
+      margin-right: 12px;
+      font-size: 18px;
+    }
+
+    .menu-arrow {
+      margin-left: auto;
+      font-size: 18px;
+    }
+
+    .notification-badge {
+      margin-left: auto;
+      background-color: rgba(255, 77, 77, 0.9);
+      color: white;
+      min-width: 20px;
+      height: 20px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      padding: 0 6px;
+    }
+
+    /* Main Content Styles */
+    .main-content {
+      flex: 1;
+      padding: 24px;
+      overflow-y: auto;
+    }
+
+    .content-wrapper {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .page-title {
+      font-size: 24px;
+      font-weight: 700;
+    }
+
+    .page-subtitle {
+      color: var(--text-secondary);
+      font-size: 14px;
+      margin-top: 4px;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 12px;
+    }
+
+    .btn {
+      padding: 10px 16px;
+      border-radius: var(--border-radius-sm);
+      border: none;
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background-color: var(--primary-color);
+      color: black;
+    }
+
+    .btn-primary:hover {
+      background-color: #19c0b5;
+    }
+
+    .btn-outline {
+      background-color: transparent;
+      border: 1px solid var(--primary-color);
+      color: var(--primary-color);
+    }
+
+    .btn-outline:hover {
+      background-color: var(--primary-light);
+    }
+
+    .btn-danger {
+      background-color: var(--danger-color);
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background-color: #ff3f5c;
+    }
+
+    /* Roster Management Tabs */
+    .tabs-container {
+      margin-bottom: 24px;
+    }
+
+    .tabs-header {
+      display: flex;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      margin-bottom: 24px;
+    }
+
+    .tab {
+      padding: 12px 24px;
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.2s;
+      border-bottom: 2px solid transparent;
+    }
+
+    .tab.active {
+      color: var(--primary-color);
+      border-bottom-color: var(--primary-color);
+    }
+
+    .tab:hover:not(.active) {
+      color: var(--text-primary);
+    }
+
+    /* Search and Filter Section */
+    .search-filter-section {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .search-container {
+      position: relative;
+      width: 300px;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 10px 16px 10px 40px;
+      border-radius: var(--border-radius-sm);
+      background-color: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: var(--text-primary);
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: var(--primary-color);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-secondary);
+    }
+
+    .filter-controls {
+      display: flex;
+      gap: 12px;
+    }
+
+    .filter-dropdown {
+      position: relative;
+    }
+
+    .filter-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      background-color: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: var(--border-radius-sm);
+      color: var(--text-primary);
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .filter-btn:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    /* Roster Cards Section */
+    .roster-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+
+    .roster-card {
+      background-color: var(--card-bg);
+      border-radius: var(--border-radius);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      transition: all 0.3s;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .roster-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+      border-color: var(--primary-color);
+    }
+
+    .roster-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 16px;
+    }
+
+    .roster-title-section {
+      flex: 1;
+    }
+
+    .roster-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .roster-subtitle {
+      color: var(--text-secondary);
+      font-size: 13px;
+    }
+
+    .roster-badge {
+      padding: 4px 10px;
+      background-color: var(--primary-light);
+      color: var(--primary-color);
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .roster-badge.staff {
+      background-color: var(--primary-light);
+      color: var(--primary-color);
+    }
+
+    .roster-badge.student {
+      background-color: rgba(255, 159, 67, 0.1);
+      color: var(--secondary-color);
+    }
+
+    .roster-stats {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .stat-item {
+      flex: 1;
+      background-color: rgba(255, 255, 255, 0.05);
+      border-radius: var(--border-radius-sm);
+      padding: 10px;
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .roster-members {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .member-preview {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .member-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .member-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 12px;
+    }
+
+    .staff-avatar {
+      background-color: var(--primary-light);
+      color: var(--primary-color);
+    }
+
+    .student-avatar {
+      background-color: rgba(255, 159, 67, 0.1);
+      color: var(--secondary-color);
+    }
+
+    .member-name {
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .member-role {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .member-preview-actions {
+      display: flex;
+      gap: 4px;
+    }
+
+    .preview-action {
+      width: 24px;
+      height: 24px;
+      border-radius: var(--border-radius-xs);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: rgba(255, 255, 255, 0.05);
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .preview-action:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .roster-footer {
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .last-updated {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .roster-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .roster-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: var(--border-radius-xs);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: rgba(255, 255, 255, 0.05);
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+      color: var(--text-primary);
+    }
+
+    .roster-btn:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .roster-btn.edit {
+      background-color: var(--primary-light);
+      color: var(--primary-color);
+    }
+
+    /* Detailed Roster Section */
+    .detailed-roster {
+      background-color: var(--card-bg);
+      border-radius: var(--border-radius);
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+
+    .detailed-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 24px;
+    }
+
+    .detailed-title-area {
+      flex: 1;
+    }
+
+    .detailed-title {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .detailed-subtitle {
+      color: var(--text-secondary);
+      font-size: 14px;
+    }
+
+    .detailed-actions {
+      display: flex;
+      gap: 12px;
+    }
+
+    .roster-table-container {
+      overflow-x: auto;
+    }
+
+    .roster-table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 800px;
+    }
+
+    .roster-table th {
+      text-align: left;
+      padding: 12px 16px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .roster-table td {
+      padding: 16px;
+      font-size: 14px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .roster-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .roster-table tr:hover td {
+      background-color: rgba(255, 255, 255, 0.02);
+    }
+
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 8px;
+    }
+
+    .status-active {
+      background-color: var(--success-color);
+    }
+
+    .status-inactive {
+      background-color: var(--text-secondary);
+    }
+
+    .status-pending {
+      background-color: var(--secondary-color);
+    }
+
+    .table-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .table-action {
+      width: 28px;
+      height: 28px;
+      border-radius: var(--border-radius-xs);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+      background-color: rgba(255, 255, 255, 0.05);
+      color: var(--text-primary);
+    }
+
+    .table-action:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .table-action.edit {
+      background-color: var(--primary-light);
+      color: var(--primary-color);
+    }
+
+    .table-action.delete {
+      background-color: rgba(255, 92, 117, 0.1);
+      color: var(--danger-color);
+    }
+
+    .pagination {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 20px;
+    }
+
+    .page-info {
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    .page-controls {
+      display: flex;
+      gap: 8px;
+    }
+
+    .page-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--border-radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: rgba(255, 255, 255, 0.05);
+      color: var(--text-primary);
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+    }
+
+    .page-btn.active {
+      background-color: var(--primary-color);
+      color: black;
+    }
+
+    .page-btn:hover:not(.active) {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    /* Responsive Styles */
+    @media (max-width: 1200px) {
+      .roster-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .roster-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+      }
+      
+      .header-actions {
+        width: 100%;
+        justify-content: space-between;
+      }
+      
+      .search-filter-section {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+      }
+      
+      .search-container {
+        width: 100%;
+      }
+      
+      .filter-controls {
+        width: 100%;
+        justify-content: space-between;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="logo-container">
+        <div class="logo">
+          <div class="logo-icon">C</div>
+        </div>
+        <h2>ChanceLight</h2>
+      </div>
+      
+      <div class="menu-section">
+        <h3 class="menu-title">MAIN MENU</h3>
+        <ul class="menu-list">
+          <li class="menu-item">
+            <span class="menu-icon">📊</span>
+            <a href="index.html" style="text-decoration: none; color: #b3b3b3;">Dashboard</a>
+          </li>
+          <li class="menu-item">
+            <span class="menu-icon">📋</span>
+            <a href="attendance-review-page.html" style="text-decoration: none; color: #b3b3b3;">Attendance</a>
+          </li>
+          <li class="menu-item active">
+            <span class="menu-icon">👥</span>
+            <a href="roster-management-page.html" style="text-decoration: none; color: #b3b3b3;">Roster Management</a>
+          </li>
+          <li class="menu-item">
+            <span class="menu-icon">📝</span>
+            <a href="grades-management-page.html" style="text-decoration: none; color: #b3b3b3;">Grades</a>
+          </li>
+          <li class="menu-item">
+            <span class="menu-icon">📅</span>
+            <a href="course-schedule-page.html" style="text-decoration: none; color: #b3b3b3;">Schedule</a>
+          </li>
+          <li class="menu-item">
+            <span class="menu-icon">💬</span>
+            <a href="parent-communication-page.html" style="text-decoration: none; color: #b3b3b3;">Parent Communication</a>
+          </li>
+          <li class="menu-item">
+            <span class="menu-icon">📈</span>
+            <a href="behavior-tracking-page.html" style="text-decoration: none; color: #b3b3b3;">Behavior Tracking</a>
+          </li>
+          <li class="menu-item">
+            <span class="menu-icon">🔔</span>
+            <a href="notification-page.html" style="text-decoration: none; color: #b3b3b3;">Notifications</a>
+            <span class="notification-badge">8</span>
+          </li>
+        </ul>
+      </div>
+      
+      <div class="menu-section">
+        <h3 class="menu-title">SETTINGS</h3>
+        <ul class="menu-list">
+          <li class="menu-item">
+            <span class="menu-icon">⚙️</span>
+            <span>Settings</span>
+            <span class="menu-arrow">›</span>
+          </li>
+          <li class="menu-item">
+            <span class="menu-icon">❓</span>
+            <span>Help Center</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <div class="content-wrapper">
+        <!-- Page Header -->
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">Roster Management</h1>
+            <p class="page-subtitle">Manage your staff and student rosters</p>
+          </div>
+          
+          <div class="header-actions">
+            <button class="btn btn-outline">
+              <span>📥</span>
+              <span>Import Roster</span>
+            </button>
+            <button class="btn btn-primary">
+              <span>➕</span>
+              <span>Create New Roster</span>
+            </button>
+          </div>
+        </div>
+        
+        <!-- Tabs Container -->
+        <div class="tabs-container">
+          <div class="tabs-header">
+            <div class="tab active">All Rosters</div>
+            <div class="tab">Staff Rosters</div>
+            <div class="tab">Student Rosters</div>
+            <div class="tab">Classes</div>
+          </div>
+          
+          <!-- Search and Filter Section -->
+          <div class="search-filter-section">
+            <div class="search-container">
+              <span class="search-icon">🔍</span>
+              <input type="text" class="search-input" placeholder="Search rosters...">
+            </div>
+            
+            <div class="filter-controls">
+              <div class="filter-dropdown">
+                <button class="filter-btn">
+                  <span>Department</span>
+                  <span>▼</span>
+                </button>
+              </div>
+              
+              <div class="filter-dropdown">
+                <button class="filter-btn">
+                  <span>Status</span>
+                  <span>▼</span>
+                </button>
+              </div>
+              
+              <div class="filter-dropdown">
+                <button class="filter-btn">
+                  <span>Sort By</span>
+                  <span>▼</span>
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Roster Cards Grid -->
+          <div class="roster-grid">
+            <!-- Roster Card 1 -->
+            <div class="roster-card">
+              <div class="roster-header">
+                <div class="roster-title-section">
+                  <h3 class="roster-title">Special Education Department</h3>
+                  <div class="roster-subtitle">15 Staff Members</div>
+                </div>
+                <div class="roster-badge staff">Staff</div>
+              </div>
+              
+              <div class="roster-stats">
+                <div class="stat-item">
+                  <div class="stat-value">15</div>
+                  <div class="stat-label">Total</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-value">12</div>
+                  <div class="stat-label">Active</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-value">3</div>
+                  <div class="stat-label">On Leave</div>
+                </div>
+              </div>
+              
+              <div class="roster-members">
+                <div class="member-preview">
+                  <div class="member-info">
+                    <div class="member-avatar staff-avatar">NK</div>
+                    <div>
+                      <div class="member-name">Natashia Khaleira</div>
+                      <div class="member-role">Head of Department</div>
+                    </div>
+                  </div>
+                  <div class="member-preview-actions">
+                    <div class="preview-action">✓</div>
+                  </div>
+                </div>
+                
+                <div class="member-preview">
+                  <div class="member-info">
+                    <div class="member-avatar staff-avatar">MJ</div>
+                    <div>
+                      <div class="member-name">Michael Johnson</div>
+                      <div class="member-role">Teacher</div>
+                    </div>
+                  </div>
+                  <div class="member-preview-actions">
+                    <div class="preview-action">✓</div>
+                  </div>
+                </div>
+                
+                <div class="member-preview">
+                  <div class="member-info">
+                    <div class="member-avatar staff-avatar">SR</div>
+                    <div>
+                      <div class="member-name">Sarah Robinson</div>
+                      <div class="member-role">Assistant</div>
+                    </div>
+                  </div>
+                  <div class="member-preview-actions">
+                    <div class="preview-action">✓</div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="roster-footer">
+                <div class="last-updated">Updated: May 2, 2025</div>
+                <div class="roster-actions">
+                  <button class="roster-btn">📝</button>
+                  <button class="roster-btn edit">👁️</button>
+                  <button class="roster-btn">⋮</button>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Roster Card 2 -->
+            <div class="roster-card">
+              <div class="roster-header">
+                <div class="roster-title-section">
+                  <h3 class="roster-title">10th Grade - Special Education</h3>
+                  <div class="roster-subtitle">28 Students</div>
+                </div>
+                <div class="roster-badge student">Student</div>
+              </div>
+              
+              <div class="roster-stats">
+                <div class="stat-item">
+                  <div class="stat-value">28</div>
+                  <div class="stat-label">Total</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-value">26</div>
+                  <div class="stat-label">Active</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-value">2</div>
+                  <div class="stat-label">Inactive</div>
+                </div>
+              </div>
+              
+              <div class="roster-members">
+                <div class="member-preview">
+                  <div class="member-info">
+                    <div class="member-avatar student-avatar">MT</div>
+                    <div>
+                      <div class="member-name">Michael Thompson</div>
+                      <div class="member-role">Student</div>
+                    </div>
+                  </div>
+                  <div class="member-preview-actions">
+                    <div class="preview-action">✓</div>
+                  </div>
+                </div>
+                
+                <div class="member-preview">
+                  <div class="member-info">
+                    <div class="member-avatar student-avatar">JD</div>
+                    <div>
+                      <div class="member-name">Jennifer Davis</div>
+                      <div class="member-role">Student</div>
+                    </div>
+                  </div>
+                  <div class="member-preview-actions">
+                    <div class="preview-action">✓</div>
+                  </div>
+                </div>
+                
+                <div class="member-preview">
+                  <div class="member-info">
+                    <div class="member-avatar student-avatar">RW</div>
+                    <div>
+                      <div class="member-name">Robert Williams</div>
+                      <div class="member-role">Student</div>
+                    </div>
+                  </div>
+                  <div class="member-preview-actions">
+                    <div class="preview-action">✓</div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="roster-footer">
+                <div class="last-updated">Updated: May 4, 2025</div>
+                <div class="roster-actions">
+                  <button class="roster-btn">📝</button>
+                  <button class="roster-btn edit">👁️</button>
+                  <button class="roster-btn">⋮</button>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Roster Card 3 -->
+            <div class="roster-card">
+              <div class="roster-header">
+                <div class="roster-title-section">
+                  <h3 class="roster-title">Math Department</h3>
+                  <div class="roster-subtitle">10 Staff Members</div>
+                </div>
+                <div class="roster-badge staff">Staff</div>
+              </div>
+              
+              <div class="roster-stats">
+                <div class="stat-item">
+                  <div class="stat-value">10</div>
+                  <div class="stat-label">Total</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-value">8</div>
+                  <div class="stat-label">Active</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-value">2</div>
+                  <div class="stat-label">On Leave</div>
+                </div>
+              </div>
+              
+              <div class="roster-members">
+                <div class="member-preview">
+                  <div class="member-info">
+                    <div class="member-avatar staff-avatar">JD</div>
+                    <div>
+                      <div class="member-name">James Davis</div>
+                      <div class="member-role">Head of Department</div>
+                    </div>
+                  </div>
+                  <div class="member-preview-actions">
+                    <div class="preview-action">✓</div>
+                  </div>
+                </div>
+                
+                <div class="member-preview">
+                  <div class="member-info">
+                    <div class="member-avatar staff-avatar">EL</div>
+                    <div>
+                      <div class="member-name">Emma Lewis</div>
+                      <div class="member-role">Teacher</div>
+                    </div>
+                  </div>
+                  <div class="member-preview-actions">
+                    <div class="preview-action">✓</div>
+                  </div>
+                </div>
+                
+                <div class="member-preview">
+                  <div class="member-info">
+                    <div class="member-avatar staff-avatar">DT</div>
+                    <div>
+                      <div class="member-name">David Taylor</div>
+                      <div class="member-role">Assistant</div>
+                    </div>
+                  </div>
+                  <div class="member-preview-actions">
+                    <div class="preview-action">✓</div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="roster-footer">
+                <div class="last-updated">Updated: May 1, 2025</div>
+                <div class="roster-actions">
+                  <button class="roster-btn">📝</button>
+                  <button class="roster-btn edit">👁️</button>
+                  <button class="roster-btn">⋮</button>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Roster Card 4 -->
+            <div class="roster-card">
+              <div class="roster-header">
+                <div class="roster-title-section">
+                  <h3 class="roster-title">11th Grade - Math</h3>
+                  <div class="roster-subtitle">22 Students</div>
+                </div>
+                <div class="roster-badge student">Student</div>
+              </div>
+              
+              <div class="roster-stats">
+                <div class="stat-item">
+                  <div class="stat-value">22</div>
+                  <div class="stat-label">Total</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-value">20</div>
+                  <div class="stat-label">Active</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-value">2</div>
+                  <div class="stat-label">Inactive</div>
+                </div>
+              </div>
+              
+              <div class="roster-members">
+                <div class="member-preview">
+                  <div class="member-info">
+                    <div class="member-avatar student-avatar">AS</div>
+                    <div>
+                      <div class="member-name">Alex Smith</div>
+                      <div class="member-role">Student</div>
+                    </div>
+                  </div>
+                  <div class="member-preview-actions">
+                    <div class="preview-action">✓</div>
+                  </div>
+                </div>
+                
+                <div class="member-preview">
+                  <div class="member-info">
+                    <div class="member-avatar student-avatar">LJ</div>
+                    <div>
+                      <div class="member-name">Lisa Johnson</div>
+                      <div class="member-role">Student</div>
+                    </div>
+                  </div>
+                  <div class="member-preview-actions">
+                    <div class="preview-action">✓</div>
+                  </div>
+                </div>
+                
+                <div class="member-preview">
+                  <div class="member-info">
+                    <div class="member-avatar student-avatar">KP</div>
+                    <div>
+                      <div class="member-name">Kevin Parker</div>
+                      <div class="member-role">Student</div>
+                    </div>
+                  </div>
+                  <div class="member-preview-actions">
+                    <div class="preview-action">✓</div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="roster-footer">
+                <div class="last-updated">Updated: May 3, 2025</div>
+                <div class="roster-actions">
+                  <button class="roster-btn">📝</button>
+                  <button class="roster-btn edit">👁️</button>
+                  <button class="roster-btn">⋮</button>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Roster Card 5 -->
+            <div class="roster-card">
+              <div class="roster-header">
+                <div class="roster-title-section">
+                  <h3 class="roster-title">Science Department</h3>
+                  <div class="roster-subtitle">12 Staff Members</div>
+                </div>
+                <div class="roster-badge staff">Staff</div>
+              </div>
+              
+              <div class="roster-stats">
+                <div class="stat-item">
+                  <div class="stat-value">12</div>
+                  <div class="stat-label">Total</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-value">11</div>
+                  <div class="stat-label">Active</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-value">1</div>
+                  <div class="stat-label">On Leave</div>
+                </div>
+              </div>
+              
+              <div class="roster-members">
+                <div class="member-preview">
+                  <div class="member-info">
+                    <div class="member-avatar staff-avatar">SR</div>
+                    <div>
+                      <div class="member-name">Sarah Rodriguez</div>
+                      <div class="member-role">Head of Department</div>
+                    </div>
+                  </div>
+                  <div class="member-preview-actions">
+                    <div class="preview-action">✓</div>
+                  </div>
+                </div>
+                
+                <div class="member-preview">
+                  <div class="member-info">
+                    <div class="member-avatar staff-avatar">BW</div>
+                    <div>
+                      <div class="member-name">Brian Wilson</div>
+                      <div class="member-role">Teacher</div>
+                    </div>
+                  </div>
+                  <div class="member-preview-actions">
+                    <div class="preview-action">✓</div>
+                  </div>
+                </div>
+                
+                <div class="member-preview">
+                  <div class="member-info">
+                    <div class="member-avatar staff-avatar">LT</div>
+                    <div>
+                      <div class="member-name">Laura Thomas</div>
+                      <div class="member-role">Teacher</div>
+                    </div>
+                  </div>
+                  <div class="member-preview-actions">
+                    <div class="preview-action">✓</div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="roster-footer">
+                <div class="last-updated">Updated: May 4, 2025</div>
+                <div class="roster-actions">
+                  <button class="roster-btn">📝</button>
+                  <button class="roster-btn edit">👁️</button>
+                  <button class="roster-btn">⋮</button>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Roster Card 6 -->
+            <div class="roster-card">
+              <div class="roster-header">
+                <div class="roster-title-section">
+                  <h3 class="roster-title">9th Grade - Science</h3>
+                  <div class="roster-subtitle">25 Students</div>
+                </div>
+                <div class="roster-badge student">Student</div>
+              </div>
+              
+              <div class="roster-stats">
+                <div class="stat-item">
+                  <div class="stat-value">25</div>
+                  <div class="stat-label">Total</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-value">23</div>
+                  <div class="stat-label">Active</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-value">2</div>
+                  <div class="stat-label">Inactive</div>
+                </div>
+              </div>
+              
+              <div class="roster-members">
+                <div class="member-preview">
+                  <div class="member-info">
+                    <div class="member-avatar student-avatar">JL</div>
+                    <div>
+                      <div class="member-name">Jason Lee</div>
+                      <div class="member-role">Student</div>
+                    </div>
+                  </div>
+                  <div class="member-preview-actions">
+                    <div class="preview-action">✓</div>
+                  </div>
+                </div>
+                
+                <div class="member-preview">
+                  <div class="member-info">
+                    <div class="member-avatar student-avatar">EC</div>
+                    <div>
+                      <div class="member-name">Emily Carter</div>
+                      <div class="member-role">Student</div>
+                    </div>
+                  </div>
+                  <div class="member-preview-actions">
+                    <div class="preview-action">✓</div>
+                  </div>
+                </div>
+                
+                <div class="member-preview">
+                  <div class="member-info">
+                    <div class="member-avatar student-avatar">RM</div>
+                    <div>
+                      <div class="member-name">Ryan Miller</div>
+                      <div class="member-role">Student</div>
+                    </div>
+                  </div>
+                  <div class="member-preview-actions">
+                    <div class="preview-action">✓</div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="roster-footer">
+                <div class="last-updated">Updated: May 2, 2025</div>
+                <div class="roster-actions">
+                  <button class="roster-btn">📝</button>
+                  <button class="roster-btn edit">👁️</button>
+                  <button class="roster-btn">⋮</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Detailed Roster View -->
+          <div class="detailed-roster">
+            <div class="detailed-header">
+              <div class="detailed-title-area">
+                <h2 class="detailed-title">
+                  <span>Special Education Department</span>
+                  <span class="roster-badge staff">Staff</span>
+                </h2>
+                <p class="detailed-subtitle">Manage staff members, roles, and assignments</p>
+              </div>
+              
+              <div class="detailed-actions">
+                <button class="btn btn-outline">
+                  <span>🔄</span>
+                  <span>Refresh</span>
+                </button>
+                <button class="btn btn-primary">
+                  <span>➕</span>
+                  <span>Add Member</span>
+                </button>
+              </div>
+            </div>
+            
+            <div class="roster-table-container">
+              <table class="roster-table">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>ID</th>
+                    <th>Role</th>
+                    <th>Contact</th>
+                    <th>Status</th>
+                    <th>Join Date</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <!-- Staff Member 1 -->
+                  <tr>
+                    <td>
+                      <div class="member-info">
+                        <div class="member-avatar staff-avatar">NK</div>
+                        <div class="member-name">Natashia Khaleira</div>
+                      </div>
+                    </td>
+                    <td>ST-1001</td>
+                    <td>Head of Department</td>
+                    <td>nkhaleira@chancelight.org</td>
+                    <td>
+                      <span class="status-dot status-active"></span>
+                      Active
+                    </td>
+                    <td>Jan 10, 2020</td>
+                    <td>
+                      <div class="table-actions">
+                        <button class="table-action edit">✏️</button>
+                        <button class="table-action">👁️</button>
+                        <button class="table-action delete">🗑️</button>
+                      </div>
+                    </td>
+                  </tr>
+                  
+                  <!-- Staff Member 2 -->
+                  <tr>
+                    <td>
+                      <div class="member-info">
+                        <div class="member-avatar staff-avatar">MJ</div>
+                        <div class="member-name">Michael Johnson</div>
+                      </div>
+                    </td>
+                    <td>ST-1002</td>
+                    <td>Teacher</td>
+                    <td>mjohnson@chancelight.org</td>
+                    <td>
+                      <span class="status-dot status-active"></span>
+                      Active
+                    </td>
+                    <td>Mar 15, 2021</td>
+                    <td>
+                      <div class="table-actions">
+                        <button class="table-action edit">✏️</button>
+                        <button class="table-action">👁️</button>
+                        <button class="table-action delete">🗑️</button>
+                      </div>
+                    </td>
+                  </tr>
+                  
+                  <!-- Staff Member 3 -->
+                  <tr>
+                    <td>
+                      <div class="member-info">
+                        <div class="member-avatar staff-avatar">SR</div>
+                        <div class="member-name">Sarah Robinson</div>
+                      </div>
+                    </td>
+                    <td>ST-1003</td>
+                    <td>Assistant</td>
+                    <td>srobinson@chancelight.org</td>
+                    <td>
+                      <span class="status-dot status-active"></span>
+                      Active
+                    </td>
+                    <td>Sep 5, 2022</td>
+                    <td>
+                      <div class="table-actions">
+                        <button class="table-action edit">✏️</button>
+                        <button class="table-action">👁️</button>
+                        <button class="table-action delete">🗑️</button>
+                      </div>
+                    </td>
+                  </tr>
+                  
+                  <!-- Staff Member 4 -->
+                  <tr>
+                    <td>
+                      <div class="member-info">
+                        <div class="member-avatar staff-avatar">LW</div>
+                        <div class="member-name">Lisa Wilson</div>
+                      </div>
+                    </td>
+                    <td>ST-1004</td>
+                    <td>Teacher</td>
+                    <td>lwilson@chancelight.org</td>
+                    <td>
+                      <span class="status-dot status-inactive"></span>
+                      On Leave
+                    </td>
+                    <td>Apr 20, 2021</td>
+                    <td>
+                      <div class="table-actions">
+                        <button class="table-action edit">✏️</button>
+                        <button class="table-action">👁️</button>
+                        <button class="table-action delete">🗑️</button>
+                      </div>
+                    </td>
+                  </tr>
+                  
+                  <!-- Staff Member 5 -->
+                  <tr>
+                    <td>
+                      <div class="member-info">
+                        <div class="member-avatar staff-avatar">RJ</div>
+                        <div class="member-name">Robert Jenkins</div>
+                      </div>
+                    </td>
+                    <td>ST-1005</td>
+                    <td>Teacher</td>
+                    <td>rjenkins@chancelight.org</td>
+                    <td>
+                      <span class="status-dot status-active"></span>
+                      Active
+                    </td>
+                    <td>Aug 10, 2023</td>
+                    <td>
+                      <div class="table-actions">
+                        <button class="table-action edit">✏️</button>
+                        <button class="table-action">👁️</button>
+                        <button class="table-action delete">🗑️</button>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            
+            <div class="pagination">
+              <div class="page-info">Showing 5 of 15 members</div>
+              
+              <div class="page-controls">
+                <button class="page-btn">«</button>
+                <button class="page-btn active">1</button>
+                <button class="page-btn">2</button>
+                <button class="page-btn">3</button>
+                <button class="page-btn">»</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

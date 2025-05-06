@@ -1,0 +1,1354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ChanceLight Course Schedule</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary-color: #1cd6c9;
+      --primary-light: rgba(28, 214, 201, 0.1);
+      --secondary-color: #ff9f43;
+      --danger-color: #ff5c75;
+      --info-color: #5a8dee;
+      --success-color: #39da8a;
+      --sidebar-bg: #141414;
+      --main-bg: #1e1e1e;
+      --card-bg: #252525;
+      --card-hover: #2c2c2c;
+      --text-primary: #ffffff;
+      --text-secondary: #b3b3b3;
+      --border-radius: 12px;
+      --border-radius-sm: 8px;
+      --border-radius-xs: 4px;
+      --class-math: #5a8dee;
+      --class-science: #39da8a;
+      --class-english: #ff9f43;
+      --class-social: #ff5c75;
+      --class-special: #8f78ee;
+      --class-arts: #f57373;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--main-bg);
+      color: var(--text-primary);
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .app-container {
+      display: flex;
+      height: 100vh;
+    }
+
+    /* Sidebar Styles */
+    .sidebar {
+      width: 260px;
+      height: 100%;
+      background-color: var(--sidebar-bg);
+      display: flex;
+      flex-direction: column;
+      padding: 20px 0;
+      overflow-y: auto;
+    }
+
+    .logo-container {
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      margin-bottom: 30px;
+    }
+
+    .logo {
+      width: 36px;
+      height: 36px;
+      background-color: var(--primary-color);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 12px;
+    }
+
+    .logo-icon {
+      color: black;
+      font-weight: bold;
+      font-size: 18px;
+    }
+
+    .menu-section {
+      margin-bottom: 30px;
+    }
+
+    .menu-title {
+      font-size: 12px;
+      color: var(--text-secondary);
+      padding: 0 20px;
+      margin-bottom: 10px;
+      font-weight: 600;
+    }
+
+    .menu-list {
+      list-style-type: none;
+    }
+
+    .menu-item {
+      display: flex;
+      align-items: center;
+      padding: 12px 20px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      color: var(--text-secondary);
+      position: relative;
+    }
+
+    .menu-item.active {
+      background-color: var(--primary-light);
+      color: var(--text-primary);
+      border-left: 3px solid var(--primary-color);
+    }
+
+    .menu-item:hover:not(.active) {
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+
+    .menu-icon {
+      margin-right: 12px;
+      font-size: 18px;
+    }
+
+    .menu-arrow {
+      margin-left: auto;
+      font-size: 18px;
+    }
+
+    .notification-badge {
+      margin-left: auto;
+      background-color: rgba(255, 77, 77, 0.9);
+      color: white;
+      min-width: 20px;
+      height: 20px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      padding: 0 6px;
+    }
+
+    /* Main Content Styles */
+    .main-content {
+      flex: 1;
+      padding: 24px;
+      overflow-y: auto;
+    }
+
+    .content-wrapper {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .page-title {
+      font-size: 24px;
+      font-weight: 700;
+    }
+
+    .page-subtitle {
+      color: var(--text-secondary);
+      font-size: 14px;
+      margin-top: 4px;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 12px;
+    }
+
+    .btn {
+      padding: 10px 16px;
+      border-radius: var(--border-radius-sm);
+      border: none;
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background-color: var(--primary-color);
+      color: black;
+    }
+
+    .btn-primary:hover {
+      background-color: #19c0b5;
+    }
+
+    .btn-outline {
+      background-color: transparent;
+      border: 1px solid var(--primary-color);
+      color: var(--primary-color);
+    }
+
+    .btn-outline:hover {
+      background-color: var(--primary-light);
+    }
+
+    /* Tabs Container */
+    .tabs-container {
+      margin-bottom: 24px;
+    }
+
+    .tabs-header {
+      display: flex;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      margin-bottom: 24px;
+    }
+
+    .tab {
+      padding: 12px 24px;
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.2s;
+      border-bottom: 2px solid transparent;
+    }
+
+    .tab.active {
+      color: var(--primary-color);
+      border-bottom-color: var(--primary-color);
+    }
+
+    .tab:hover:not(.active) {
+      color: var(--text-primary);
+    }
+
+    /* Schedule Controls */
+    .schedule-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      background-color: var(--card-bg);
+      padding: 16px;
+      border-radius: var(--border-radius);
+    }
+
+    .date-nav {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .date-nav-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--border-radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: rgba(255, 255, 255, 0.05);
+      color: var(--text-primary);
+      font-size: 16px;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+    }
+
+    .date-nav-btn:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .current-date {
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .view-controls {
+      display: flex;
+      gap: 12px;
+    }
+
+    .view-btn {
+      padding: 8px 16px;
+      border-radius: var(--border-radius-sm);
+      background-color: rgba(255, 255, 255, 0.05);
+      color: var(--text-secondary);
+      font-size: 14px;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+    }
+
+    .view-btn.active {
+      background-color: var(--primary-color);
+      color: black;
+    }
+
+    .view-btn:hover:not(.active) {
+      background-color: rgba(255, 255, 255, 0.1);
+      color: var(--text-primary);
+    }
+
+    /* Filter Section */
+    .filter-section {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .filter-dropdown {
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .filter-label {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    .filter-select {
+      width: 100%;
+      padding: 10px 12px;
+      background-color: var(--card-bg);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: var(--border-radius-sm);
+      color: var(--text-primary);
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .filter-select:focus {
+      outline: none;
+      border-color: var(--primary-color);
+    }
+
+    /* Weekly Schedule Grid */
+    .schedule-grid {
+      background-color: var(--card-bg);
+      border-radius: var(--border-radius);
+      padding: 24px;
+      margin-bottom: 24px;
+      overflow-x: auto;
+    }
+
+    .weekly-view {
+      min-width: 900px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .time-labels {
+      display: flex;
+      margin-left: 100px;
+      margin-bottom: 16px;
+    }
+
+    .day-label {
+      flex: 1;
+      text-align: center;
+      font-weight: 600;
+      padding: 12px;
+    }
+
+    .schedule-body {
+      display: flex;
+    }
+
+    .time-slots {
+      width: 100px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .time-slot {
+      height: 120px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    .days-container {
+      flex: 1;
+      display: flex;
+    }
+
+    .day-column {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding: 0 4px;
+    }
+
+    .class-block {
+      height: 120px;
+      background-color: rgba(255, 255, 255, 0.05);
+      border-radius: var(--border-radius-sm);
+      padding: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .class-block:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .class-block::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+    }
+
+    .math-class::before {
+      background-color: var(--class-math);
+    }
+
+    .science-class::before {
+      background-color: var(--class-science);
+    }
+
+    .english-class::before {
+      background-color: var(--class-english);
+    }
+
+    .social-class::before {
+      background-color: var(--class-social);
+    }
+
+    .special-class::before {
+      background-color: var(--class-special);
+    }
+
+    .arts-class::before {
+      background-color: var(--class-arts);
+    }
+
+    .class-title {
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .class-details {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+
+    .class-instructor {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: auto;
+    }
+
+    .instructor-avatar {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background-color: var(--primary-light);
+      color: var(--primary-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 600;
+    }
+
+    .instructor-name {
+      font-size: 12px;
+    }
+
+    .empty-slot {
+      height: 120px;
+      border: 1px dashed rgba(255, 255, 255, 0.1);
+      border-radius: var(--border-radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-secondary);
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .empty-slot:hover {
+      background-color: rgba(255, 255, 255, 0.02);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    /* Daily Schedule View */
+    .daily-view {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .day-header {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+
+    .class-card {
+      background-color: rgba(255, 255, 255, 0.05);
+      border-radius: var(--border-radius);
+      padding: 16px;
+      display: flex;
+      gap: 16px;
+      position: relative;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .class-card:hover {
+      background-color: rgba(255, 255, 255, 0.08);
+    }
+
+    .class-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      border-top-left-radius: var(--border-radius);
+      border-bottom-left-radius: var(--border-radius);
+    }
+
+    .class-card.math-class::before {
+      background-color: var(--class-math);
+    }
+
+    .class-card.science-class::before {
+      background-color: var(--class-science);
+    }
+
+    .class-card.english-class::before {
+      background-color: var(--class-english);
+    }
+
+    .class-card.social-class::before {
+      background-color: var(--class-social);
+    }
+
+    .class-card.special-class::before {
+      background-color: var(--class-special);
+    }
+
+    .class-card.arts-class::before {
+      background-color: var(--class-arts);
+    }
+
+    .class-time {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-width: 100px;
+    }
+
+    .time-start {
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .time-duration {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .class-info {
+      flex: 1;
+    }
+
+    .class-title-big {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .class-room {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-bottom: 12px;
+    }
+
+    .class-meta {
+      display: flex;
+      gap: 24px;
+    }
+
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+    }
+
+    .meta-icon {
+      color: var(--text-secondary);
+    }
+
+    .class-actions {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .action-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--border-radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: rgba(255, 255, 255, 0.05);
+      color: var(--text-primary);
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .action-btn:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .action-btn.edit {
+      background-color: var(--primary-light);
+      color: var(--primary-color);
+    }
+
+    /* Class Legend */
+    .class-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 24px;
+      background-color: var(--card-bg);
+      padding: 16px;
+      border-radius: var(--border-radius);
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .color-indicator {
+      width: 12px;
+      height: 12px;
+      border-radius: 2px;
+    }
+
+    .math-indicator {
+      background-color: var(--class-math);
+    }
+
+    .science-indicator {
+      background-color: var(--class-science);
+    }
+
+    .english-indicator {
+      background-color: var(--class-english);
+    }
+
+    .social-indicator {
+      background-color: var(--class-social);
+    }
+
+    .special-indicator {
+      background-color: var(--class-special);
+    }
+
+    .arts-indicator {
+      background-color: var(--class-arts);
+    }
+
+    .legend-label {
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    /* Class Details Modal (Simplified for HTML preview) */
+    .modal-preview {
+      background-color: var(--card-bg);
+      border-radius: var(--border-radius);
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 24px;
+    }
+
+    .modal-title {
+      font-size: 20px;
+      font-weight: 600;
+    }
+
+    .modal-close {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--border-radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: rgba(255, 255, 255, 0.05);
+      color: var(--text-primary);
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .modal-close:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .class-details-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+
+    .detail-item {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .detail-label {
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    .detail-value {
+      font-size: 16px;
+      font-weight: 500;
+    }
+
+    .class-description {
+      margin-bottom: 24px;
+    }
+
+    .description-label {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+
+    .description-text {
+      line-height: 1.6;
+      color: var(--text-secondary);
+    }
+
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+    }
+
+    /* Responsive Styles */
+    @media (max-width: 1200px) {
+      .class-details-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .schedule-controls {
+        flex-direction: column;
+        gap: 16px;
+        align-items: flex-start;
+      }
+      
+      .filter-section {
+        flex-direction: column;
+      }
+      
+      .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+      }
+      
+      .header-actions {
+        width: 100%;
+        justify-content: space-between;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="logo-container">
+        <div class="logo">
+          <div class="logo-icon">C</div>
+        </div>
+        <h2>ChanceLight</h2>
+      </div>
+      
+      <div class="menu-section">
+        <h3 class="menu-title">MAIN MENU</h3>
+        <ul class="menu-list">
+          <li class="menu-item">
+            <span class="menu-icon">📊</span>
+            <a href="index.html" style="text-decoration: none; color: #b3b3b3;">Dashboard</a>
+          </li>
+          <li class="menu-item">
+            <span class="menu-icon">📋</span>
+            <a href="attendance-review-page.html" style="text-decoration: none; color: #b3b3b3;">Attendance</a>
+          </li>
+          <li class="menu-item">
+            <span class="menu-icon">👥</span>
+            <a href="roster-management-page.html" style="text-decoration: none; color: #b3b3b3;">Roster Management</a>
+          </li>
+          <li class="menu-item">
+            <span class="menu-icon">📝</span>
+            <a href="grades-management-page.html" style="text-decoration: none; color: #b3b3b3;">Grades</a>
+          </li>
+          <li class="menu-item active">
+            <span class="menu-icon">📅</span>
+            <a href="course-schedule-page.html" style="text-decoration: none; color: #b3b3b3;">Schedule</a>
+          </li>
+          <li class="menu-item">
+            <span class="menu-icon">💬</span>
+            <a href="parent-communication-page.html" style="text-decoration: none; color: #b3b3b3;">Parent Communication</a>
+          </li>
+          <li class="menu-item">
+            <span class="menu-icon">📈</span>
+            <a href="behavior-tracking-page.html" style="text-decoration: none; color: #b3b3b3;">Behavior Tracking</a>
+          </li>
+          <li class="menu-item">
+            <span class="menu-icon">🔔</span>
+            <a href="notification-page.html" style="text-decoration: none; color: #b3b3b3;">Notifications</a>
+            <span class="notification-badge">8</span>
+          </li>
+        </ul>
+      </div>
+      
+      <div class="menu-section">
+        <h3 class="menu-title">SETTINGS</h3>
+        <ul class="menu-list">
+          <li class="menu-item">
+            <span class="menu-icon">⚙️</span>
+            <span>Settings</span>
+            <span class="menu-arrow">›</span>
+          </li>
+          <li class="menu-item">
+            <span class="menu-icon">❓</span>
+            <span>Help Center</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <div class="content-wrapper">
+        <!-- Page Header -->
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">Course Schedule</h1>
+            <p class="page-subtitle">Manage and view class schedules for teachers and students</p>
+          </div>
+          
+          <div class="header-actions">
+            <button class="btn btn-outline">
+              <span>🖨️</span>
+              <span>Print Schedule</span>
+            </button>
+            <button class="btn btn-primary">
+              <span>➕</span>
+              <span>Add Class</span>
+            </button>
+          </div>
+        </div>
+        
+        <!-- Tabs Container -->
+        <div class="tabs-container">
+          <div class="tabs-header">
+            <div class="tab active">My Schedule</div>
+            <div class="tab">Teacher Schedules</div>
+            <div class="tab">Student Schedules</div>
+            <div class="tab">Room Schedules</div>
+          </div>
+          
+          <!-- Schedule Controls -->
+          <div class="schedule-controls">
+            <div class="date-nav">
+              <button class="date-nav-btn">←</button>
+              <div class="current-date">May 5 - May 11, 2025</div>
+              <button class="date-nav-btn">→</button>
+            </div>
+            
+            <div class="view-controls">
+              <button class="view-btn active">Week</button>
+              <button class="view-btn">Day</button>
+              <button class="view-btn">List</button>
+            </div>
+          </div>
+          
+          <!-- Filter Section -->
+          <div class="filter-section">
+            <div class="filter-dropdown">
+              <label class="filter-label">Department/Grade</label>
+              <select class="filter-select">
+                <option>All Departments</option>
+                <option>Special Education</option>
+                <option>Mathematics</option>
+                <option>Science</option>
+                <option>English</option>
+              </select>
+            </div>
+            
+            <div class="filter-dropdown">
+              <label class="filter-label">Location</label>
+              <select class="filter-select">
+                <option>All Locations</option>
+                <option>Main Building</option>
+                <option>Science Wing</option>
+                <option>Arts Center</option>
+              </select>
+            </div>
+            
+            <div class="filter-dropdown">
+              <label class="filter-label">Instructor</label>
+              <select class="filter-select">
+                <option>All Instructors</option>
+                <option>Natashia Khaleira</option>
+                <option>James Davis</option>
+                <option>Sarah Rodriguez</option>
+              </select>
+            </div>
+          </div>
+          
+          <!-- Class Legend -->
+          <div class="class-legend">
+            <div class="legend-item">
+              <div class="color-indicator math-indicator"></div>
+              <div class="legend-label">Mathematics</div>
+            </div>
+            <div class="legend-item">
+              <div class="color-indicator science-indicator"></div>
+              <div class="legend-label">Science</div>
+            </div>
+            <div class="legend-item">
+              <div class="color-indicator english-indicator"></div>
+              <div class="legend-label">English</div>
+            </div>
+            <div class="legend-item">
+              <div class="color-indicator social-indicator"></div>
+              <div class="legend-label">Social Studies</div>
+            </div>
+            <div class="legend-item">
+              <div class="color-indicator special-indicator"></div>
+              <div class="legend-label">Special Education</div>
+            </div>
+            <div class="legend-item">
+              <div class="color-indicator arts-indicator"></div>
+              <div class="legend-label">Arts & Music</div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Weekly Schedule Grid -->
+        <div class="schedule-grid">
+          <div class="weekly-view">
+            <div class="time-labels">
+              <div class="day-label">Monday</div>
+              <div class="day-label">Tuesday</div>
+              <div class="day-label">Wednesday</div>
+              <div class="day-label">Thursday</div>
+              <div class="day-label">Friday</div>
+            </div>
+            
+            <div class="schedule-body">
+              <div class="time-slots">
+                <div class="time-slot">8:00 - 9:30</div>
+                <div class="time-slot">9:45 - 11:15</div>
+                <div class="time-slot">11:30 - 1:00</div>
+                <div class="time-slot">1:45 - 3:15</div>
+              </div>
+              
+              <div class="days-container">
+                <!-- Monday -->
+                <div class="day-column">
+                  <div class="class-block english-class">
+                    <div class="class-title">Literature</div>
+                    <div class="class-details">Room 210 • 10th Grade</div>
+                    <div class="class-instructor">
+                      <div class="instructor-avatar">LW</div>
+                      <div class="instructor-name">Lisa Wilson</div>
+                    </div>
+                  </div>
+                  
+                  <div class="empty-slot">
+                    Staff Meeting
+                  </div>
+                  
+                  <div class="empty-slot">
+                    Lunch Break
+                  </div>
+                  
+                  <div class="class-block social-class">
+                    <div class="class-title">American History</div>
+                    <div class="class-details">Room 215 • 10th Grade</div>
+                    <div class="class-instructor">
+                      <div class="instructor-avatar">BT</div>
+                      <div class="instructor-name">Brian Thomas</div>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Wednesday -->
+                <div class="day-column">
+                  <div class="class-block math-class">
+                    <div class="class-title">Algebra II</div>
+                    <div class="class-details">Room 201 • 10th Grade</div>
+                    <div class="class-instructor">
+                      <div class="instructor-avatar">JD</div>
+                      <div class="instructor-name">James Davis</div>
+                    </div>
+                  </div>
+                  
+                  <div class="class-block special-class">
+                    <div class="class-title">Individual Education Plan</div>
+                    <div class="class-details">Room 105 • Special Ed.</div>
+                    <div class="class-instructor">
+                      <div class="instructor-avatar">NK</div>
+                      <div class="instructor-name">Natashia Khaleira</div>
+                    </div>
+                  </div>
+                  
+                  <div class="empty-slot">
+                    Lunch Break
+                  </div>
+                  
+                  <div class="class-block arts-class">
+                    <div class="class-title">Art & Creativity</div>
+                    <div class="class-details">Room 301 • 10th Grade</div>
+                    <div class="class-instructor">
+                      <div class="instructor-avatar">AR</div>
+                      <div class="instructor-name">Amy Roberts</div>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Thursday -->
+                <div class="day-column">
+                  <div class="class-block english-class">
+                    <div class="class-title">Literature</div>
+                    <div class="class-details">Room 210 • 10th Grade</div>
+                    <div class="class-instructor">
+                      <div class="instructor-avatar">LW</div>
+                      <div class="instructor-name">Lisa Wilson</div>
+                    </div>
+                  </div>
+                  
+                  <div class="class-block science-class">
+                    <div class="class-title">Biology Lab</div>
+                    <div class="class-details">Room 305 • 10th Grade</div>
+                    <div class="class-instructor">
+                      <div class="instructor-avatar">SR</div>
+                      <div class="instructor-name">Sarah Rodriguez</div>
+                    </div>
+                  </div>
+                  
+                  <div class="empty-slot">
+                    Lunch Break
+                  </div>
+                  
+                  <div class="class-block social-class">
+                    <div class="class-title">American History</div>
+                    <div class="class-details">Room 215 • 10th Grade</div>
+                    <div class="class-instructor">
+                      <div class="instructor-avatar">BT</div>
+                      <div class="instructor-name">Brian Thomas</div>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Friday -->
+                <div class="day-column">
+                  <div class="class-block math-class">
+                    <div class="class-title">Algebra II</div>
+                    <div class="class-details">Room 201 • 10th Grade</div>
+                    <div class="class-instructor">
+                      <div class="instructor-avatar">JD</div>
+                      <div class="instructor-name">James Davis</div>
+                    </div>
+                  </div>
+                  
+                  <div class="class-block special-class">
+                    <div class="class-title">Group Therapy</div>
+                    <div class="class-details">Room 105 • Special Ed.</div>
+                    <div class="class-instructor">
+                      <div class="instructor-avatar">NK</div>
+                      <div class="instructor-name">Natashia Khaleira</div>
+                    </div>
+                  </div>
+                  
+                  <div class="empty-slot">
+                    Lunch Break
+                  </div>
+                  
+                  <div class="empty-slot">
+                    Early Dismissal
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Daily View (Hidden by default in this preview) -->
+        <div class="schedule-grid" style="display: none;">
+          <div class="daily-view">
+            <h2 class="day-header">Monday, May 5, 2025</h2>
+            
+            <!-- Class 1 -->
+            <div class="class-card math-class">
+              <div class="class-time">
+                <div class="time-start">8:00</div>
+                <div class="time-duration">90 min</div>
+              </div>
+              
+              <div class="class-info">
+                <div class="class-title-big">Algebra II</div>
+                <div class="class-room">Room 201 • 10th Grade</div>
+                
+                <div class="class-meta">
+                  <div class="meta-item">
+                    <span class="meta-icon">👤</span>
+                    <span>James Davis</span>
+                  </div>
+                  <div class="meta-item">
+                    <span class="meta-icon">👥</span>
+                    <span>22 Students</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="class-actions">
+                <button class="action-btn edit">✏️</button>
+                <button class="action-btn">📄</button>
+              </div>
+            </div>
+            
+            <!-- Class 2 -->
+            <div class="class-card special-class">
+              <div class="class-time">
+                <div class="time-start">9:45</div>
+                <div class="time-duration">90 min</div>
+              </div>
+              
+              <div class="class-info">
+                <div class="class-title-big">Individual Education Plan</div>
+                <div class="class-room">Room 105 • Special Education</div>
+                
+                <div class="class-meta">
+                  <div class="meta-item">
+                    <span class="meta-icon">👤</span>
+                    <span>Natashia Khaleira</span>
+                  </div>
+                  <div class="meta-item">
+                    <span class="meta-icon">👥</span>
+                    <span>12 Students</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="class-actions">
+                <button class="action-btn edit">✏️</button>
+                <button class="action-btn">📄</button>
+              </div>
+            </div>
+            
+            <!-- Break -->
+            <div class="class-card">
+              <div class="class-time">
+                <div class="time-start">11:30</div>
+                <div class="time-duration">90 min</div>
+              </div>
+              
+              <div class="class-info">
+                <div class="class-title-big">Lunch Break</div>
+                <div class="class-room">Cafeteria</div>
+              </div>
+              
+              <div class="class-actions">
+                <button class="action-btn">📄</button>
+              </div>
+            </div>
+            
+            <!-- Class 3 -->
+            <div class="class-card science-class">
+              <div class="class-time">
+                <div class="time-start">1:45</div>
+                <div class="time-duration">90 min</div>
+              </div>
+              
+              <div class="class-info">
+                <div class="class-title-big">Biology</div>
+                <div class="class-room">Room 302 • 10th Grade</div>
+                
+                <div class="class-meta">
+                  <div class="meta-item">
+                    <span class="meta-icon">👤</span>
+                    <span>Sarah Rodriguez</span>
+                  </div>
+                  <div class="meta-item">
+                    <span class="meta-icon">👥</span>
+                    <span>24 Students</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="class-actions">
+                <button class="action-btn edit">✏️</button>
+                <button class="action-btn">📄</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Class Details Modal Preview -->
+        <div class="modal-preview">
+          <div class="modal-header">
+            <h2 class="modal-title">Class Details</h2>
+            <button class="modal-close">✕</button>
+          </div>
+          
+          <div class="class-details-grid">
+            <div class="detail-item">
+              <div class="detail-label">Class Name</div>
+              <div class="detail-value">Algebra II</div>
+            </div>
+            
+            <div class="detail-item">
+              <div class="detail-label">Subject</div>
+              <div class="detail-value">Mathematics</div>
+            </div>
+            
+            <div class="detail-item">
+              <div class="detail-label">Instructor</div>
+              <div class="detail-value">James Davis</div>
+            </div>
+            
+            <div class="detail-item">
+              <div class="detail-label">Room</div>
+              <div class="detail-value">201</div>
+            </div>
+            
+            <div class="detail-item">
+              <div class="detail-label">Schedule</div>
+              <div class="detail-value">MWF 8:00 AM - 9:30 AM</div>
+            </div>
+            
+            <div class="detail-item">
+              <div class="detail-label">Grade/Section</div>
+              <div class="detail-value">10th Grade - Special Education</div>
+            </div>
+            
+            <div class="detail-item">
+              <div class="detail-label">Student Count</div>
+              <div class="detail-value">22 Students</div>
+            </div>
+            
+            <div class="detail-item">
+              <div class="detail-label">Status</div>
+              <div class="detail-value">Active</div>
+            </div>
+          </div>
+          
+          <div class="class-description">
+            <div class="description-label">Class Description</div>
+            <div class="description-text">
+              This course builds on algebraic concepts covered in Algebra I and prepares students for advanced math courses. The curriculum includes a comprehensive study of functions (linear, quadratic, polynomial, rational, exponential, and logarithmic), as well as sequences and series, probability and statistics, and an introduction to trigonometry. The course is adapted for special education students with additional support materials and modified pace as needed.
+            </div>
+          </div>
+          
+          <div class="modal-footer">
+            <button class="btn btn-outline">Edit Class</button>
+            <button class="btn btn-primary">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html> class="class-block math-class">
+                    <div class="class-title">Algebra II</div>
+                    <div class="class-details">Room 201 • 10th Grade</div>
+                    <div class="class-instructor">
+                      <div class="instructor-avatar">JD</div>
+                      <div class="instructor-name">James Davis</div>
+                    </div>
+                  </div>
+                  
+                  <div class="class-block special-class">
+                    <div class="class-title">Individual Education Plan</div>
+                    <div class="class-details">Room 105 • Special Ed.</div>
+                    <div class="class-instructor">
+                      <div class="instructor-avatar">NK</div>
+                      <div class="instructor-name">Natashia Khaleira</div>
+                    </div>
+                  </div>
+                  
+                  <div class="empty-slot">
+                    Lunch Break
+                  </div>
+                  
+                  <div class="class-block science-class">
+                    <div class="class-title">Biology</div>
+                    <div class="class-details">Room 302 • 10th Grade</div>
+                    <div class="class-instructor">
+                      <div class="instructor-avatar">SR</div>
+                      <div class="instructor-name">Sarah Rodriguez</div>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Tuesday -->
+                <div class="day-column">
+                  <div

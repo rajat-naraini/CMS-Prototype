@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ChanceLight Notifications - Meal Break Penalties</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary-color: #1cd6c9;
+      --primary-light: rgba(28, 214, 201, 0.1);
+      --secondary-color: #ff9f43;
+      --danger-color: #ff5c75;
+      --info-color: #5a8dee;
+      --success-color: #39da8a;
+      --sidebar-bg: #141414;
+      --main-bg: #1e1e1e;
+      --card-bg: #252525;
+      --card-hover: #2c2c2c;
+      --input-bg: #1a1a1a;
+      --text-primary: #ffffff;
+      --text-secondary: #b3b3b3;
+      --border-radius: 12px;
+      --border-radius-sm: 8px;
+      --border-radius-xs: 4px;
+      --priority-high: var(--danger-color);
+      --priority-medium: var(--secondary-color);
+      --priority-low: var(--success-color);
+      --category-system: #8f65ff;
+      --category-attendance: #5a8dee;
+      --category-meal: #ff9f43;
+      --category-behavior: #ff5c75;
+      --category-academic: #39da8a;
+      --category-hr: #f765e1;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--main-bg);
+      color: var(--text-primary);
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .app-container {
+      display: flex;
+      height: 100vh;
+    }
+
+    /* Sidebar Styles */
+    .sidebar {
+      width: 260px;
+      height: 100%;
+      background-color: var(--sidebar-bg);
+      display: flex;
+      flex-direction: column;
+      padding: 20px 0;
+      overflow-y: auto;
+    }
+
+    .logo-container {
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      margin-bottom: 30px;
+    }
+
+    .logo {
+      width: 36px;
+      height: 36px;
+      background-color: var(--primary-color);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 12px;
+    }
+
+    .logo-icon {
+      color: black;
+      font-weight: bold;
+      font-size: 18px;
+    }
+
+    .menu-section {
+      margin-bottom: 30px;
+    }
+
+    .menu-title {
+      font-size: 12px;
+      color: var(--text-secondary);
+      padding: 0 20px;
+      margin-bottom: 10px;
+      font-weight: 600;
+    }
+
+    .menu-list {
+      list-style-type: none;
+    }
+
+    .menu-item {
+      display: flex;
+      align-items: center;
+      padding: 12px 20px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      color: var(--text-secondary);
+      position: relative;
+    }
+
+    .menu-item.active {
+      background-color: var(--primary-light);
+      color: var(--text-primary);
+      border-left: 3px solid var(--primary-color);
+    }
+
+    .menu-item:hover:not(.active) {
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+
+    .menu-icon {
+      margin-right: 12px;
+      font-size: 18px;
+    }
+
+    .menu-arrow {
+      margin-left: auto;
+      font-size: 18px;
+    }
+
+    .notification-badge {
+      margin-left: auto;
+      background-color: rgba(255, 77, 77, 0.9);
+      color: white;
+      min-width: 20px;
+      height: 20px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      padding: 0 6px;
+    }
+
+    /* Main Content Styles */
+    .main-content {
+      flex: 1;
+      padding: 24px;
+      overflow-y: auto;
+    }
+
+    .content-wrapper {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .page-title {
+      font-size: 24px;
+      font-weight: 700;
+    }
+
+    .page-subtitle {
+      color: var(--text-secondary);
+      font-size: 14px;
+      margin-top: 4px;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 12px;
+    }
+
+    .btn {
+      padding: 10px 16px;
+      border-radius: var(--border-radius-sm);
+      border: none;
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background-color: var(--primary-color);
+      color: black;
+    }
+
+    .btn-primary:hover {
+      background-color: #19c0b5;
+    }
+
+    .btn-outline {
+      background-color: transparent;
+      border: 1px solid var(--primary-color);
+      color: var(--primary-color);
+    }
+
+    .btn-outline:hover {
+      background-color: var(--primary-light);
+    }
+
+    /* Notifications Filter */
+    .filter-section {
+      background-color: var(--card-bg);
+      border-radius: var(--border-radius);
+      padding: 20px;
+      margin-bottom: 24px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      align-items: center;
+    }
+
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .filter-label {
+      font-size: 14px;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    .filter-select {
+      padding: 10px 12px;
+      background-color: var(--input-bg);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: var(--border-radius-sm);
+      color: var(--text-primary);
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+    }
+
+    .filter-select:focus {
+      outline: none;
+      border-color: var(--primary-color);
+    }
+
+    .filter-buttons {
+      display: flex;
+      gap: 12px;
+      margin-left: auto;
+    }
+
+    .tag-filter {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .tag-btn {
+      padding: 6px 12px;
+      border-radius: 20px;
+      background-color: rgba(255, 255, 255, 0.05);
+      color: var(--text-secondary);
+      font-size: 13px;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+    }
+
+    .tag-btn.active {
+      background-color: var(--primary-light);
+      color: var(--primary-color);
+    }
+
+    .tag-btn:hover:not(.active) {
+      background-color: rgba(255, 255, 255, 0.1);
+      color: var(--text-primary);
+    }
+
+    /* Notification Tabs */
+    .tabs-container {
+      margin-bottom: 24px;
+    }
+
+    .tabs-header {
+      display: flex;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      margin-bottom: 24px;
+    }
+
+    .tab {
+      padding: 12px 24px;
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.2s;
+      border-bottom: 2px solid transparent;
+      position: relative;
+    }
+
+    .tab.active {
+      color: var(--primary-color);
+      border-bottom-color: var(--primary-color);
+    }
+
+    .tab:hover:not(.active) {
+      color: var(--text-primary);
+    }
+
+    .tab-badge {
+      position: absolute;
+      top: 8px;
+      right: 12px;
+      background-color: var(--danger-color);
+      color: white;
+      border-radius: 12px;
+      font-size: 10px;
+      padding: 2px 6px;
+      font-weight: 600;
+    }
+
+    /* Notifications Container */
+    .notifications-container {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .notification-item {
+      background-color: var(--card-bg);
+      border-radius: var(--border-radius);
+      padding: 20px;
+      display: flex;
+      gap: 16px;
+      transition: all 0.2s;
+      border-left: 4px solid transparent;
+    }
+
+    .notification-item:hover {
+      background-color: var(--card-hover);
+    }
+
+    .notification-item.unread {
+      border-left-color: var(--primary-color);
+    }
+
+    .notification-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+
+    .notification-icon.meal {
+      background-color: rgba(255, 159, 67, 0.1);
+      color: var(--category-meal);
+    }
+
+    .notification-icon.system {
+      background-color: rgba(143, 101, 255, 0.1);
+      color: var(--category-system);
+    }
+
+    .notification-icon.hr {
+      background-color: rgba(247, 101, 225, 0.1);
+      color: var(--category-hr);
+    }
+
+    .notification-icon.attendance {
+      background-color: rgba(90, 141, 238, 0.1);
+      color: var(--category-attendance);
+    }
+
+    .notification-icon.behavior {
+      background-color: rgba(255, 92, 117, 0.1);
+      color: var(--category-behavior);
+    }
+
+    .notification-icon.academic {
+      background-color: rgba(57, 218, 138, 0.1);
+      color: var(--category-academic);
+    }
+
+    .notification-content {
+      flex: 1;
+    }
+
+    .notification-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .notification-title {
+      font-weight: 600;
+      font-size: 16px;
+    }
+
+    .notification-time {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .notification-message {
+      margin-bottom: 12px;
+      font-size: 14px;
+      line-height: 1.5;
+      color: var(--text-secondary);
+    }
+
+    .notification-message strong {
+      color: var(--text-primary);
+      font-weight: 500;
+    }
+
+    .notification-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .notification-tags {
+      display: flex;
+      gap: 8px;
+    }
+
+    .notification-tag {
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .notification-tag.priority-high {
+      background-color: rgba(255, 92, 117, 0.1);
+      color: var(--priority-high);
+    }
+
+    .notification-tag.priority-medium {
+      background-color: rgba(255, 159, 67, 0.1);
+      color: var(--priority-medium);
+    }
+
+    .notification-tag.priority-low {
+      background-color: rgba(57, 218, 138, 0.1);
+      color: var(--priority-low);
+    }
+
+    .notification-tag.meal {
+      background-color: rgba(255, 159, 67, 0.1);
+      color: var(--category-meal);
+    }
+
+    .notification-tag.system {
+      background-color: rgba(143, 101, 255, 0.1);
+      color: var(--category-system);
+    }
+
+    .notification-tag.hr {
+      background-color: rgba(247, 101, 225, 0.1);
+      color: var(--category-hr);
+    }
+
+    .notification-tag.attendance {
+      background-color: rgba(90, 141, 238, 0.1);
+      color: var(--category-attendance);
+    }
+
+    .notification-tag.behavior {
+      background-color: rgba(255, 92, 117, 0.1);
+      color: var(--category-behavior);
+    }
+
+    .notification-tag.academic {
+      background-color: rgba(57, 218, 138, 0.1);
+      color: var(--category-academic);
+    }
+
+    .notification-actions {
+      display: flex;
+      gap: 12px;
+    }
+
+    .notification-btn {
+      font-size: 13px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .notification-btn:hover {
+      color: var(--text-primary);
+    }
+
+    /* Notification Details Modal */
+    .notification-modal {
+      background-color: var(--card-bg);
+      border-radius: var(--border-radius);
+      padding: 24px;
+      margin-top: 24px;
+      margin-bottom: 24px;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 20px;
+    }
+
+    .modal-title {
+      font-size: 20px;
+      font-weight: 600;
+    }
+
+    .modal-close {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--border-radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: rgba(255, 255, 255, 0.05);
+      color: var(--text-primary);
+      font-size: 16px;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+    }
+
+    .modal-close:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .modal-info {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .modal-info-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .info-label {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .info-value {
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .meal-details {
+      background-color: rgba(255, 255, 255, 0.05);
+      border-radius: var(--border-radius-sm);
+      padding: 16px;
+      margin-bottom: 20px;
+    }
+
+    .meal-details-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .meal-details-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .meal-details-row:last-child {
+      border-bottom: none;
+    }
+
+    .meal-details-label {
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    .meal-details-value {
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .meal-total {
+      font-weight: 600;
+      color: var(--danger-color);
+    }
+
+    .modal-message {
+      margin-bottom: 20px;
+      line-height: 1.6;
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+    }
+
+    /* Pagination */
+    .pagination {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 24px;
+      margin-bottom: 24px;
+    }
+
+    .page-info {
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    .page-controls {
+      display: flex;
+      gap: 8px;
+    }
+
+    .page-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--border-radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: var(--card-bg);
+      color: var(--text-primary);
+      font-size: 14px;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+    }
+
+    .page-btn.active {
+      background-color: var(--primary-color);
+      color: black;
+    }
+
+    .page-btn:hover:not(.active) {
+      background-color: var(--card-hover);
+    }
+
+    /* Meal Break Summary Card */
+    .summary-card {
+      background-color: var(--card-bg);
+      border-radius: var(--border-radius);
+      padding: 20px;
+      margin-bottom: 24px;
+    }
+
+    .summary-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .summary-title {
+      font-size: 18px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .summary-period {
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .summary-item {
+      background-color: rgba(255, 255, 255, 0.05);
+      border-radius: var(--border-radius-sm);
+      padding: 16px;
+      text-align: center;
+    }
+
+    .summary-value {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .summary-value.negative {
+      color: var(--danger-color);
+    }
+
+    .summary-label {
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    /* Responsive */
+    @media (max-width: 992px) {
+      .filter-section {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      
+      .filter-buttons {
+        margin-left: 0;
+        width: 100%;
+        justify-content: flex-end;
+      }
+      
+      .summary-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+      }
+      
+      .header-actions {
+        width: 100%;
+        justify-content: space-between;
+      }
+      
+      .notification-item {
+        flex-direction: column;
+      }
+      
+      .notification-footer {
+        flex-direction: column;
+        gap: 12px;
+        align-items: flex-start;
+      }
+      
+      .modal-info {
+        flex-direction: column;
+        gap: 16px;
+      }
+      
+      .summary-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="logo-container">
+        <div class="logo">
+          <div class="logo-icon">C</div>
+        </div>
+        <h2>ChanceLight</h2>
+      </div>
+      
+      <div class="menu-section">
+        <h3 class="menu-title">MAIN MENU</h3>
+        <ul class="menu-list">
+          <li class="menu-item">
+            <span class="menu-icon">📊</span>
+            <a href="index.html" style="text-decoration: none; color: #b3b3b3;">Dashboard</a>
+          </li>
+          <li class="menu-item">
+            <span class="menu-icon">📋</span>
+            <a href="attendance-review-page.html" style="text-decoration: none; color: #b3b3b3;">Attendance</a>
+          </li>
+          <li class="menu-item">
+            <span class="menu-icon">👥</span>
+            <a href="roster-management-page.html" style="text-decoration: none; color: #b3b3b3;">Roster Management</a>
+          </li>
+          <li class="menu-item">
+            <span class="menu-icon">📝</span>
+            <a href="grades-management-page.html" style="text-decoration: none; color: #b3b3b3;">Grades</a>
+          </li>
+          <li class="menu-item">
+            <span class="menu-icon">📅</span>
+            <a href="course-schedule-page.html" style="text-decoration: none; color: #b3b3b3;">Schedule</a>
+          </li>
+          <li class="menu-item">
+            <span class="menu-icon">💬</span>
+            <a href="parent-communication-page.html" style="text-decoration: none; color: #b3b3b3;">Parent Communication</a>
+          </li>
+          <li class="menu-item">
+            <span class="menu-icon">📈</span>
+            <a href="behavior-tracking-page.html" style="text-decoration: none; color: #b3b3b3;">Behavior Tracking</a>
+          </li>
+          <li class="menu-item active">
+            <span class="menu-icon">🔔</span>
+            <a href="notification-page.html" style="text-decoration: none; color: #b3b3b3;">Notifications</a>
+            <span class="notification-badge">8</span>
+          </li>
+        </ul>
+      </div>
+      
+      <div class="menu-section">
+        <h3 class="menu-title">SETTINGS</h3>
+        <ul class="menu-list">
+          <li class="menu-item">
+            <span class="menu-icon">⚙️</span>
+            <span>Settings</span>
+            <span class="menu-arrow">›</span>
+          </li>
+          <li class="menu-item">
+            <span class="menu-icon">❓</span>
+            <span>Help Center</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <div class="content-wrapper">
+        <!-- Page Header -->
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">Notifications</h1>
+            <p class="page-subtitle">View and manage your meal break penalty notifications</p>
+          </div>
+          
+          <div class="header-actions">
+            <button class="btn btn-outline">
+              <span>✓</span>
+              <span>Mark All as Read</span>
+            </button>
+            <button class="btn btn-primary">
+              <span>⚙️</span>
+              <span>Notification Settings</span>
+            </button>
+          </div>
+        </div>
+        
+        <!-- Meal Break Summary Card -->
+        <div class="summary-card">
+          <div class="summary-header">
+            <div class="summary-title">
+              <span>⏱️</span>
+              <span>Meal Break Summary</span>
+            </div>
+            <div class="summary-period">May 1 - May 5, 2025</div>
+          </div>
+          
+          <div class="summary-grid">
+            <div class="summary-item">
+              <div class="summary-value">8</div>
+              <div class="summary-label">Total Shifts Worked</div>
+            </div>
+            
+            <div class="summary-item">
+              <div class="summary-value negative">3</div>
+              <div class="summary-label">Missed Meal Breaks</div>
+            </div>
+            
+            <div class="summary-item">
+              <div class="summary-value negative">1</div>
+              <div class="summary-label">Late Meal Breaks</div>
+            </div>
+            
+            <div class="summary-item">
+              <div class="summary-value negative">$172.50</div>
+              <div class="summary-label">Total Penalties (YTD)</div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Filter Section -->
+        <div class="filter-section">
+          <div class="filter-group">
+            <label class="filter-label">Category</label>
+            <select class="filter-select">
+              <option>All Categories</option>
+              <option selected>Meal Break Penalties</option>
+              <option>HR Notifications</option>
+              <option>System Notifications</option>
+              <option>Attendance</option>
+            </select>
+          </div>
+          
+          <div class="filter-group">
+            <label class="filter-label">Pay Period</label>
+            <select class="filter-select">
+              <option>All Pay Periods</option>
+              <option selected>Current Pay Period</option>
+              <option>Previous Pay Period</option>
+              <option>Last 30 Days</option>
+            </select>
+          </div>
+          
+          <div class="filter-group">
+            <label class="filter-label">Status</label>
+            <select class="filter-select">
+              <option>All Statuses</option>
+              <option>Pending</option>
+              <option>Paid</option>
+              <option>Disputed</option>
+              <option>Waived</option>
+            </select>
+          </div>
+          
+          <div class="filter-buttons">
+            <button class="btn btn-outline">Reset</button>
+            <button class="btn btn-primary">Apply Filters</button>
+          </div>
+        </div>
+        
+        <!-- Tag Filters -->
+        <div class="tag-filter">
+          <button class="tag-btn active">All</button>
+          <button class="tag-btn">Unread</button>
+          <button class="tag-btn">Missed Breaks</button>
+          <button class="tag-btn">Late Breaks</button>
+          <button class="tag-btn">Pending</button>
+          <button class="tag-btn">Paid</button>
+          <button class="tag-btn">Disputed</button>
+        </div>
+        
+        <!-- Tabs Container -->
+        <div class="tabs-container">
+          <div class="tabs-header">
+            <div class="tab active">
+              Meal Break Penalties
+              <span class="tab-badge">4</span>
+            </div>
+            <div class="tab">Rest Break Penalties</div>
+            <div class="tab">Overtime Notifications</div>
+            <div class="tab">HR Updates</div>
+          </div>
+          
+          <!-- Notifications Container -->
+          <div class="notifications-container">
+            <!-- Notification 1 - Missed Meal Break -->
+            <div class="notification-item unread">
+              <div class="notification-icon meal">⏱️</div>
+              <div class="notification-content">
+                <div class="notification-header">
+                  <div class="notification-title">Missed Meal Break Penalty</div>
+                  <div class="notification-time">Today, 10:30 AM</div>
+                </div>
+                <div class="notification-message">
+                  You have received a meal break penalty for <strong>May 4, 2025</strong>. According to our records, you worked <strong>8.5 hours</strong> without taking a 30-minute meal break. Per California Labor Code, a meal premium of <strong>$34.50</strong> (one hour at your regular rate) will be added to your next paycheck.
+                </div>
+                <div class="notification-footer">
+                  <div class="notification-tags">
+                    <div class="notification-tag priority-high">High Priority</div>
+                    <div class="notification-tag meal">Meal Penalty</div>
+                    <div class="notification-tag hr">HR</div>
+                  </div>
+                  <div class="notification-actions">
+                    <div class="notification-btn">Mark as Read</div>
+                    <div class="notification-btn">View Details</div>
+                    <div class="notification-btn">Dispute</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Notification 2 - Late Meal Break -->
+            <div class="notification-item unread">
+              <div class="notification-icon meal">⏱️</div>
+              <div class="notification-content">
+                <div class="notification-header">
+                  <div class="notification-title">Late Meal Break Penalty</div>
+                  <div class="notification-time">Today, 9:15 AM</div>
+                </div>
+                <div class="notification-message">
+                  You have received a meal break penalty for <strong>May 3, 2025</strong>. According to our records, you took your meal break after working <strong>6.2 hours</strong>. California law requires meal breaks to begin before the end of the 5th hour of work. A meal premium of <strong>$34.50</strong> will be added to your next pay

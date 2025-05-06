@@ -1,0 +1,1273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ChanceLight Parent Communication</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary-color: #1cd6c9;
+      --primary-light: rgba(28, 214, 201, 0.1);
+      --secondary-color: #ff9f43;
+      --danger-color: #ff5c75;
+      --info-color: #5a8dee;
+      --success-color: #39da8a;
+      --sidebar-bg: #141414;
+      --main-bg: #1e1e1e;
+      --card-bg: #252525;
+      --card-hover: #2c2c2c;
+      --input-bg: #1a1a1a;
+      --text-primary: #ffffff;
+      --text-secondary: #b3b3b3;
+      --border-radius: 12px;
+      --border-radius-sm: 8px;
+      --border-radius-xs: 4px;
+      --message-sent: var(--primary-light);
+      --message-received: rgba(255, 255, 255, 0.05);
+      --priority-high: var(--danger-color);
+      --priority-medium: var(--secondary-color);
+      --priority-low: var(--success-color);
+      --status-unread: var(--primary-color);
+      --status-read: var(--text-secondary);
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--main-bg);
+      color: var(--text-primary);
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .app-container {
+      display: flex;
+      height: 100vh;
+    }
+
+    /* Sidebar Styles */
+    .sidebar {
+      width: 260px;
+      height: 100%;
+      background-color: var(--sidebar-bg);
+      display: flex;
+      flex-direction: column;
+      padding: 20px 0;
+      overflow-y: auto;
+    }
+
+    .logo-container {
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      margin-bottom: 30px;
+    }
+
+    .logo {
+      width: 36px;
+      height: 36px;
+      background-color: var(--primary-color);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 12px;
+    }
+
+    .logo-icon {
+      color: black;
+      font-weight: bold;
+      font-size: 18px;
+    }
+
+    .menu-section {
+      margin-bottom: 30px;
+    }
+
+    .menu-title {
+      font-size: 12px;
+      color: var(--text-secondary);
+      padding: 0 20px;
+      margin-bottom: 10px;
+      font-weight: 600;
+    }
+
+    .menu-list {
+      list-style-type: none;
+    }
+
+    .menu-item {
+      display: flex;
+      align-items: center;
+      padding: 12px 20px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      color: var(--text-secondary);
+      position: relative;
+    }
+
+    .menu-item.active {
+      background-color: var(--primary-light);
+      color: var(--text-primary);
+      border-left: 3px solid var(--primary-color);
+    }
+
+    .menu-item:hover:not(.active) {
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+
+    .menu-icon {
+      margin-right: 12px;
+      font-size: 18px;
+    }
+
+    .menu-arrow {
+      margin-left: auto;
+      font-size: 18px;
+    }
+
+    .notification-badge {
+      margin-left: auto;
+      background-color: rgba(255, 77, 77, 0.9);
+      color: white;
+      min-width: 20px;
+      height: 20px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      padding: 0 6px;
+    }
+
+    /* Main Content Styles */
+    .main-content {
+      flex: 1;
+      padding: 24px;
+      overflow-y: auto;
+    }
+
+    .content-wrapper {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .page-title {
+      font-size: 24px;
+      font-weight: 700;
+    }
+
+    .page-subtitle {
+      color: var(--text-secondary);
+      font-size: 14px;
+      margin-top: 4px;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 12px;
+    }
+
+    .btn {
+      padding: 10px 16px;
+      border-radius: var(--border-radius-sm);
+      border: none;
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background-color: var(--primary-color);
+      color: black;
+    }
+
+    .btn-primary:hover {
+      background-color: #19c0b5;
+    }
+
+    .btn-outline {
+      background-color: transparent;
+      border: 1px solid var(--primary-color);
+      color: var(--primary-color);
+    }
+
+    .btn-outline:hover {
+      background-color: var(--primary-light);
+    }
+
+    .btn-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--border-radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: rgba(255, 255, 255, 0.05);
+      color: var(--text-primary);
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-icon:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    /* Tabs Container */
+    .tabs-container {
+      margin-bottom: 24px;
+    }
+
+    .tabs-header {
+      display: flex;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      margin-bottom: 24px;
+    }
+
+    .tab {
+      padding: 12px 24px;
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.2s;
+      border-bottom: 2px solid transparent;
+    }
+
+    .tab.active {
+      color: var(--primary-color);
+      border-bottom-color: var(--primary-color);
+    }
+
+    .tab:hover:not(.active) {
+      color: var(--text-primary);
+    }
+
+    /* Communication Layout */
+    .communication-layout {
+      display: grid;
+      grid-template-columns: 350px 1fr;
+      gap: 24px;
+      height: calc(100vh - 180px);
+    }
+
+    /* Contact List */
+    .contact-list-section {
+      background-color: var(--card-bg);
+      border-radius: var(--border-radius);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .contact-search {
+      padding: 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .search-input-container {
+      position: relative;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 10px 16px 10px 40px;
+      background-color: var(--input-bg);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: var(--border-radius-sm);
+      color: var(--text-primary);
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: var(--primary-color);
+    }
+
+    .search-icon {
+      position: absolute;
+      top: 50%;
+      left: 14px;
+      transform: translateY(-50%);
+      color: var(--text-secondary);
+      font-size: 16px;
+    }
+
+    .contacts-filter {
+      padding: 12px 16px;
+      display: flex;
+      gap: 8px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .filter-button {
+      padding: 6px 12px;
+      background-color: rgba(255, 255, 255, 0.05);
+      border: none;
+      border-radius: 20px;
+      color: var(--text-secondary);
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .filter-button.active {
+      background-color: var(--primary-light);
+      color: var(--primary-color);
+    }
+
+    .filter-button:hover:not(.active) {
+      background-color: rgba(255, 255, 255, 0.08);
+    }
+
+    .contacts-list {
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .contact-item {
+      padding: 16px;
+      display: flex;
+      gap: 12px;
+      cursor: pointer;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      transition: all 0.2s;
+    }
+
+    .contact-item:hover {
+      background-color: rgba(255, 255, 255, 0.02);
+    }
+
+    .contact-item.active {
+      background-color: var(--primary-light);
+    }
+
+    .contact-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background-color: var(--primary-color);
+      color: black;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .contact-details {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .contact-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+
+    .contact-name {
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .contact-time {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .contact-preview {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .message-preview {
+      font-size: 13px;
+      color: var(--text-secondary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 170px;
+    }
+
+    .message-status {
+      display: flex;
+      gap: 4px;
+    }
+
+    .status-badge {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    .status-unread {
+      background-color: var(--status-unread);
+    }
+
+    .priority-badge {
+      padding: 2px 6px;
+      border-radius: 10px;
+      font-size: 10px;
+      font-weight: 600;
+    }
+
+    .priority-high {
+      background-color: rgba(255, 92, 117, 0.2);
+      color: var(--priority-high);
+    }
+
+    .priority-medium {
+      background-color: rgba(255, 159, 67, 0.2);
+      color: var(--priority-medium);
+    }
+
+    .priority-low {
+      background-color: rgba(57, 218, 138, 0.2);
+      color: var(--priority-low);
+    }
+
+    /* Chat Section */
+    .chat-section {
+      background-color: var(--card-bg);
+      border-radius: var(--border-radius);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .chat-header {
+      padding: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .chat-contact {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .contact-info h3 {
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+
+    .contact-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .online-status {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: var(--success-color);
+    }
+
+    .chat-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .chat-body {
+      flex: 1;
+      padding: 24px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .chat-date-divider {
+      text-align: center;
+      margin: 16px 0;
+      position: relative;
+    }
+
+    .date-divider-line {
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background-color: rgba(255, 255, 255, 0.05);
+      z-index: 1;
+    }
+
+    .date-text {
+      background-color: var(--card-bg);
+      padding: 0 16px;
+      position: relative;
+      z-index: 2;
+      font-size: 13px;
+      color: var(--text-secondary);
+      display: inline-block;
+    }
+
+    .message-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .message-row {
+      display: flex;
+      gap: 12px;
+      max-width: 80%;
+    }
+
+    .message-row.sent {
+      align-self: flex-end;
+      flex-direction: row-reverse;
+    }
+
+    .message-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background-color: var(--primary-color);
+      color: black;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 14px;
+      align-self: flex-end;
+    }
+
+    .message-row.sent .message-avatar {
+      background-color: var(--primary-light);
+      color: var(--primary-color);
+    }
+
+    .message-content {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .message-bubble {
+      padding: 12px 16px;
+      background-color: var(--message-received);
+      border-radius: 16px 16px 16px 4px;
+      font-size: 14px;
+    }
+
+    .message-row.sent .message-bubble {
+      background-color: var(--message-sent);
+      border-radius: 16px 16px 4px 16px;
+    }
+
+    .message-time {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 4px;
+      align-self: flex-end;
+    }
+
+    .message-actions {
+      display: flex;
+      gap: 4px;
+      margin-top: 4px;
+      align-self: flex-end;
+    }
+
+    .message-action {
+      font-size: 12px;
+      color: var(--text-secondary);
+      cursor: pointer;
+    }
+
+    .message-action:hover {
+      color: var(--text-primary);
+    }
+
+    .attachment {
+      margin-top: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      background-color: rgba(255, 255, 255, 0.05);
+      border-radius: var(--border-radius-sm);
+      max-width: 300px;
+    }
+
+    .attachment-icon {
+      font-size: 20px;
+      color: var(--text-secondary);
+    }
+
+    .attachment-details {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .attachment-name {
+      font-size: 13px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .attachment-size {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .attachment-download {
+      font-size: 16px;
+      color: var(--primary-color);
+      cursor: pointer;
+    }
+
+    .chat-footer {
+      padding: 16px;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .message-input-container {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .message-input-wrapper {
+      flex: 1;
+      position: relative;
+    }
+
+    .message-input {
+      width: 100%;
+      padding: 12px 16px;
+      background-color: var(--input-bg);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: var(--border-radius);
+      color: var(--text-primary);
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      resize: none;
+      min-height: 48px;
+      max-height: 120px;
+      overflow-y: auto;
+    }
+
+    .message-input:focus {
+      outline: none;
+      border-color: var(--primary-color);
+    }
+
+    .input-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .input-action {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--border-radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: rgba(255, 255, 255, 0.05);
+      color: var(--text-primary);
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+    }
+
+    .input-action:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .send-button {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--border-radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: var(--primary-color);
+      color: black;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+    }
+
+    .send-button:hover {
+      background-color: #19c0b5;
+    }
+
+    /* Notification Templates */
+    .template-section {
+      background-color: var(--card-bg);
+      border-radius: var(--border-radius);
+      padding: 20px;
+      margin-bottom: 24px;
+    }
+
+    .template-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .template-title {
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .template-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 16px;
+    }
+
+    .template-card {
+      background-color: rgba(255, 255, 255, 0.05);
+      border-radius: var(--border-radius-sm);
+      padding: 16px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .template-card:hover {
+      background-color: rgba(255, 255, 255, 0.08);
+      transform: translateY(-4px);
+    }
+
+    .template-card-title {
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .template-card-preview {
+      font-size: 13px;
+      color: var(--text-secondary);
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      line-height: 1.5;
+      margin-bottom: 12px;
+    }
+
+    .template-card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    /* Responsive Styles */
+    @media (max-width: 1200px) {
+      .communication-layout {
+        grid-template-columns: 300px 1fr;
+      }
+    }
+
+    @media (max-width: 992px) {
+      .communication-layout {
+        grid-template-columns: 1fr;
+      }
+      
+      .contact-list-section {
+        display: none;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+      }
+      
+      .header-actions {
+        width: 100%;
+        justify-content: space-between;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="logo-container">
+        <div class="logo">
+          <div class="logo-icon">C</div>
+        </div>
+        <h2>ChanceLight</h2>
+      </div>
+      
+      <div class="menu-section">
+        <h3 class="menu-title">MAIN MENU</h3>
+        <ul class="menu-list">
+          <li class="menu-item">
+            <span class="menu-icon">📊</span>
+            <a href="index.html" style="text-decoration: none; color: #b3b3b3;">Dashboard</a>
+          </li>
+          <li class="menu-item">
+            <span class="menu-icon">📋</span>
+            <a href="attendance-review-page.html" style="text-decoration: none; color: #b3b3b3;">Attendance</a>
+          </li>
+          <li class="menu-item">
+            <span class="menu-icon">👥</span>
+            <a href="roster-management-page.html" style="text-decoration: none; color: #b3b3b3;">Roster Management</a>
+          </li>
+          <li class="menu-item">
+            <span class="menu-icon">📝</span>
+            <a href="grades-management-page.html" style="text-decoration: none; color: #b3b3b3;">Grades</a>
+          </li>
+          <li class="menu-item">
+            <span class="menu-icon">📅</span>
+            <a href="course-schedule-page.html" style="text-decoration: none; color: #b3b3b3;">Schedule</a>
+          </li>
+          <li class="menu-item active">
+            <span class="menu-icon">💬</span>
+            <a href="parent-communication-page.html" style="text-decoration: none; color: #b3b3b3;">Parent Communication</a>
+          </li>
+          <li class="menu-item">
+            <span class="menu-icon">📈</span>
+            <a href="behavior-tracking-page.html" style="text-decoration: none; color: #b3b3b3;">Behavior Tracking</a>
+          </li>
+          <li class="menu-item">
+            <span class="menu-icon">🔔</span>
+            <a href="notification-page.html" style="text-decoration: none; color: #b3b3b3;">Notifications</a>
+            <span class="notification-badge">8</span>
+          </li>
+        </ul>
+      </div>
+      
+      <div class="menu-section">
+        <h3 class="menu-title">SETTINGS</h3>
+        <ul class="menu-list">
+          <li class="menu-item">
+            <span class="menu-icon">⚙️</span>
+            <span>Settings</span>
+            <span class="menu-arrow">›</span>
+          </li>
+          <li class="menu-item">
+            <span class="menu-icon">❓</span>
+            <span>Help Center</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <div class="content-wrapper">
+        <!-- Page Header -->
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">Parent Communication</h1>
+            <p class="page-subtitle">Manage communications with parents and guardians</p>
+          </div>
+          
+          <div class="header-actions">
+            <button class="btn btn-outline">
+              <span>✉️</span>
+              <span>Send Bulk Message</span>
+            </button>
+            <button class="btn btn-primary">
+              <span>➕</span>
+              <span>New Message</span>
+            </button>
+          </div>
+        </div>
+        
+        <!-- Tabs Container -->
+        <div class="tabs-container">
+          <div class="tabs-header">
+            <div class="tab active">Messages</div>
+            <div class="tab">Announcements</div>
+            <div class="tab">Templates</div>
+            <div class="tab">Reports</div>
+          </div>
+          
+          <!-- Communication Layout -->
+          <div class="communication-layout">
+            <!-- Contact List Section -->
+            <div class="contact-list-section">
+              <div class="contact-search">
+                <div class="search-input-container">
+                  <span class="search-icon">🔍</span>
+                  <input type="text" class="search-input" placeholder="Search contacts...">
+                </div>
+              </div>
+              
+              <div class="contacts-filter">
+                <button class="filter-button active">All</button>
+                <button class="filter-button">Unread</button>
+                <button class="filter-button">Flagged</button>
+                <button class="filter-button">Recent</button>
+              </div>
+              
+              <div class="contacts-list">
+                <!-- Contact 1 -->
+                <div class="contact-item active">
+                  <div class="contact-avatar">JT</div>
+                  <div class="contact-details">
+                    <div class="contact-header">
+                      <div class="contact-name">John Thompson</div>
+                      <div class="contact-time">10:25 AM</div>
+                    </div>
+                    <div class="contact-preview">
+                      <div class="message-preview">Thank you for the update on Michael's progress...</div>
+                      <div class="message-status">
+                        <div class="status-badge status-unread"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Contact 2 -->
+                <div class="contact-item">
+                  <div class="contact-avatar">SD</div>
+                  <div class="contact-details">
+                    <div class="contact-header">
+                      <div class="contact-name">Sarah Davis</div>
+                      <div class="contact-time">Yesterday</div>
+                    </div>
+                    <div class="contact-preview">
+                      <div class="message-preview">Will Jennifer be participating in the field trip next...</div>
+                      <div class="message-status">
+                        <div class="priority-badge priority-high">High</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Contact 3 -->
+                <div class="contact-item">
+                  <div class="contact-avatar">RW</div>
+                  <div class="contact-details">
+                    <div class="contact-header">
+                      <div class="contact-name">Robert Wilson</div>
+                      <div class="contact-time">Yesterday</div>
+                    </div>
+                    <div class="contact-preview">
+                      <div class="message-preview">I've attached Kevin's doctor's note for his absence...</div>
+                      <div class="message-status">
+                        <div class="priority-badge priority-medium">Med</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Contact 4 -->
+                <div class="contact-item">
+                  <div class="contact-avatar">ML</div>
+                  <div class="contact-details">
+                    <div class="contact-header">
+                      <div class="contact-name">Maria Lopez</div>
+                      <div class="contact-time">May 4</div>
+                    </div>
+                    <div class="contact-preview">
+                      <div class="message-preview">Thank you for the resources you shared last week...</div>
+                      <div class="message-status">
+                        <div class="priority-badge priority-low">Low</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Contact 5 -->
+                <div class="contact-item">
+                  <div class="contact-avatar">AC</div>
+                  <div class="contact-details">
+                    <div class="contact-header">
+                      <div class="contact-name">Amanda Chen</div>
+                      <div class="contact-time">May 3</div>
+                    </div>
+                    <div class="contact-preview">
+                      <div class="message-preview">Is there a homework assignment due this Friday?</div>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Contact 6 -->
+                <div class="contact-item">
+                  <div class="contact-avatar">TB</div>
+                  <div class="contact-details">
+                    <div class="contact-header">
+                      <div class="contact-name">Tom Baker</div>
+                      <div class="contact-time">May 2</div>
+                    </div>
+                    <div class="contact-preview">
+                      <div class="message-preview">Ryan will be absent tomorrow for his dental appointment...</div>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Contact 7 -->
+                <div class="contact-item">
+                  <div class="contact-avatar">KJ</div>
+                  <div class="contact-details">
+                    <div class="contact-header">
+                      <div class="contact-name">Karen Johnson</div>
+                      <div class="contact-time">Apr 30</div>
+                    </div>
+                    <div class="contact-preview">
+                      <div class="message-preview">Lisa really enjoyed the science project this week...</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Chat Section -->
+            <div class="chat-section">
+              <div class="chat-header">
+                <div class="chat-contact">
+                  <div class="contact-avatar">JT</div>
+                  <div class="contact-info">
+                    <h3>John Thompson</h3>
+                    <div class="contact-meta">
+                      <div class="online-status"></div>
+                      <span>Online</span>
+                      <span>•</span>
+                      <span>Parent of Michael Thompson</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="chat-actions">
+                  <button class="btn-icon">📞</button>
+                  <button class="btn-icon">📁</button>
+                  <button class="btn-icon">⋮</button>
+                </div>
+              </div>
+              
+              <div class="chat-body">
+                <div class="chat-date-divider">
+                  <div class="date-divider-line"></div>
+                  <span class="date-text">Yesterday</span>
+                </div>
+                
+                <!-- Message Group 1 -->
+                <div class="message-group">
+                  <div class="message-row">
+                    <div class="message-avatar">JT</div>
+                    <div class="message-content">
+                      <div class="message-bubble">
+                        Good morning Ms. Khaleira, I wanted to check in on Michael's progress with his reading assignments. Has he shown any improvement since our last meeting?
+                      </div>
+                      <div class="message-time">4:32 PM</div>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Message Group 2 -->
+                <div class="message-group">
+                  <div class="message-row sent">
+                    <div class="message-avatar">NK</div>
+                    <div class="message-content">
+                      <div class="message-bubble">
+                        Hello Mr. Thompson! Yes, I'm happy to report that Michael has been making steady progress with his reading comprehension. He's completed all his assigned work this week and participated actively in our group discussions.
+                      </div>
+                      <div class="message-time">4:45 PM</div>
+                    </div>
+                  </div>
+                  
+                  <div class="message-row sent">
+                    <div class="message-avatar">NK</div>
+                    <div class="message-content">
+                      <div class="message-bubble">
+                        I've attached his latest reading assessment for your review. He scored 85%, which is a 10% improvement from last month.
+                      </div>
+                      <div class="attachment">
+                        <div class="attachment-icon">📄</div>
+                        <div class="attachment-details">
+                          <div class="attachment-name">Michael_Reading_Assessment_May.pdf</div>
+                          <div class="attachment-size">1.2 MB</div>
+                        </div>
+                        <div class="attachment-download">⬇️</div>
+                      </div>
+                      <div class="message-time">4:47 PM</div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="chat-date-divider">
+                  <div class="date-divider-line"></div>
+                  <span class="date-text">Today</span>
+                </div>
+                
+                <!-- Message Group 3 -->
+                <div class="message-group">
+                  <div class="message-row">
+                    <div class="message-avatar">JT</div>
+                    <div class="message-content">
+                      <div class="message-bubble">
+                        Thank you for the update on Michael's progress! That's wonderful news about his improvement. The additional reading materials you suggested have been very helpful. We've been practicing at home for 30 minutes every evening.
+                      </div>
+                      <div class="message-time">10:15 AM</div>
+                    </div>
+                  </div>
+                  
+                  <div class="message-row">
+                    <div class="message-avatar">JT</div>
+                    <div class="message-content">
+                      <div class="message-bubble">
+                        Also, will there be a parent-teacher conference this month? I'd like to discuss his summer learning plan.
+                      </div>
+                      <div class="message-time">10:17 AM</div>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Message Group 4 -->
+                <div class="message-group">
+                  <div class="message-row sent">
+                    <div class="message-avatar">NK</div>
+                    <div class="message-content">
+                      <div class="message-bubble">
+                        You're welcome, Mr. Thompson! I'm glad to hear you've been working with Michael at home. That consistent practice is definitely contributing to his progress.
+                      </div>
+                      <div class="message-time">10:20 AM</div>
+                      <div class="message-actions">
+                        <span class="message-action">Edit</span>
+                        <span class="message-action">•</span>
+                        <span class="message-action">Delete</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="message-row sent">
+                    <div class="message-avatar">NK</div>
+                    <div class="message-content">
+                      <div class="message-bubble">
+                        Yes, we have parent-teacher conferences scheduled for May 15-17. I'll be sending out the sign-up form later today, and you'll be able to select a time slot that works for you. The summer learning plan is an excellent topic to discuss during the conference.
+                      </div>
+                      <div class="message-time">10:25 AM</div>
+                      <div class="message-actions">
+                        <span class="message-action">Edit</span>
+                        <span class="message-action">•</span>
+                        <span class="message-action">Delete</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="chat-footer">
+                <div class="message-input-container">
+                  <div class="message-input-wrapper">
+                    <textarea class="message-input" placeholder="Type a message..."></textarea>
+                  </div>
+                  
+                  <div class="input-actions">
+                    <button class="input-action">📎</button>
+                    <button class="input-action">📝</button>
+                    <button class="input-action">📅</button>
+                    <button class="send-button">➤</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Message Templates Section -->
+        <div class="template-section">
+          <div class="template-header">
+            <h2 class="template-title">Quick Message Templates</h2>
+            <button class="btn btn-outline">
+              <span>➕</span>
+              <span>Create Template</span>
+            </button>
+          </div>
+          
+          <div class="template-grid">
+            <!-- Template 1 -->
+            <div class="template-card">
+              <div class="template-card-title">Absence Follow-up</div>
+              <div class="template-card-preview">
+                Hello [Parent Name], I noticed that [Student Name] was absent from class today. Please let me know if everything is okay and if there's anything we can do to help.
+              </div>
+              <div class="template-card-footer">
+                <span>Last used: 2 days ago</span>
+                <span>Used 24 times</span>
+              </div>
+            </div>
+            
+            <!-- Template 2 -->
+            <div class="template-card">
+              <div class="template-card-title">Positive Behavior Acknowledgment</div>
+              <div class="template-card-preview">
+                Hello [Parent Name], I wanted to share that [Student Name] demonstrated excellent [behavior/skill] in class today. [He/She] [specific example]. We're proud of this progress!
+              </div>
+              <div class="template-card-footer">
+                <span>Last used: Yesterday</span>
+                <span>Used 37 times</span>
+              </div>
+            </div>
+            
+            <!-- Template 3 -->
+            <div class="template-card">
+              <div class="template-card-title">Homework Reminder</div>
+              <div class="template-card-preview">
+                Hello [Parent Name], This is a friendly reminder that [Student Name]'s [assignment name] is due on [date]. Please ensure it's completed and submitted on time.
+              </div>
+              <div class="template-card-footer">
+                <span>Last used: Today</span>
+                <span>Used 42 times</span>
+              </div>
+            </div>
+            
+            <!-- Template 4 -->
+            <div class="template-card">
+              <div class="template-card-title">Meeting Request</div>
+              <div class="template-card-preview">
+                Hello [Parent Name], I would like to schedule a meeting to discuss [Student Name]'s progress in [subject/area]. Are you available on [date options] for a [duration] conference?
+              </div>
+              <div class="template-card-footer">
+                <span>Last used: 3 days ago</span>
+                <span>Used 18 times</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
